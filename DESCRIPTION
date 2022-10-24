@@ -1,0 +1,18 @@
+Package: JOINTLY
+Type: Package
+Title: JOINTLY
+Version: 1.0
+Date: 2022-10-19
+Authors@R: c(
+	person("Andreas Fønss", "Møller", email = "andreasfm@bmb.sdu.dk", role = "aut"),
+	person("Jesper Grud Skat", "Madsen", email = "jgsm@imada.sdu.dk", role = c("aut", "trl", "cre")))
+Maintainer: Jesper Grud Skat Madsen <jgsm@imada.sdu.dk>
+Description: Joint clustering of single-cell and single-nucleus RNA-seq datasets.
+License: GPL-3
+URL: https://github.com/madsen-lab/rJOINTLY
+Depends: R (>= 4.0.0)
+biocViews:
+Imports: Rcpp (>= 1.0.7), RcppEigen, Matrix, R.utils, RANN, Seurat, SingleCellExperiment, scry, methods
+LinkingTo: Rcpp, RcppEigen
+Encoding: UTF-8
+RoxygenNote: 7.2.1
