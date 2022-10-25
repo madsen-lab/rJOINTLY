@@ -45,7 +45,7 @@ alphaDecay = function(dataset.list, k = 5, alpha = 2, theta = 1e-4) {
     # Expand K till 90% of the data is covered
     while (length(idx_thresh) <= 0.9 * N) {
       k_knn <- min(c(20*k_knn,N))
-      data_above <- data[ !(seq(1, nrow(data), 1) %in% idx_thresh),drop=FALSE]
+      data_above <- data[ !(seq(1, nrow(data), 1) %in% idx_thresh),,drop=FALSE]
       epsilon_above <- epsilon[ !(seq(1, length(epsilon), 1) %in% idx_thresh)]
       nn_above <- RANN::nn2(data, data_above, k = k_knn)
       nn_above.dist <- nn_above$nn.dists
@@ -71,7 +71,7 @@ alphaDecay = function(dataset.list, k = 5, alpha = 2, theta = 1e-4) {
       
     # Search by radius for the remaining points
     if (length(idx_thresh) < N) {
-      data_above <- data[ !(seq(1, nrow(data), 1) %in% idx_thresh),drop=FALSE]
+      data_above <- data[ !(seq(1, nrow(data), 1) %in% idx_thresh),,drop=FALSE]
       epsilon_above <- epsilon[ !(seq(1, length(epsilon), 1) %in% idx_thresh)]
       nn_above <- RANN::nn2(data, data_above, searchtype =  "radius", radius = max(epsilon_above) * bth)
       nn_above.dist <- nn_above$nn.dists
