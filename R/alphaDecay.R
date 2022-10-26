@@ -12,7 +12,7 @@
 #' @import Matrix
 #' @import RANN
 
-alphaDecay = function(dataset.list, k = 5, alpha = 2, theta = 1e-4) {
+alphaDecay = function(data, k = 5, alpha = 1, theta = 1e-4) {
   # TODO: Check that alpha is OK
   # Define variables
   k_knn <- k * 20
