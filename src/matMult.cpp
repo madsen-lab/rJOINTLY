@@ -50,5 +50,5 @@ NumericMatrix cdist(NumericMatrix x){
       for(k=0;k<ncol;k++)sum+=pow(x(i,k)-x(j,k),2);
       out(i,j)=sqrt(sum);
     }
-    out;
+    return Rcpp::wrap(out);
 }
