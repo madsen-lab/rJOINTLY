@@ -32,7 +32,7 @@
 #' @useDynLib JOINTLY
 #'
 
-jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, selection.method = "deviance", decay.k = 5, decay.alpha = 1, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 100, mu.loss = 1, lambda.loss = 100, beta.loss = 1, snn.k = 50, k.rare = 10, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
+jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, selection.method = "deviance", decay.k = 5, decay.alpha = 1, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 100, mu.loss = 1, lambda.loss = 100, beta.loss = 1, snn.k = 50, rare.k = 10, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
   
   # Preprocess
