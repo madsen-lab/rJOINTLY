@@ -35,3 +35,16 @@ SEXP matQuadMult(const Eigen::Map<Eigen::MatrixXd> A,
   Eigen::MatrixXd E = A * B * C * D;
   return Rcpp::wrap(E);
 }
+
+// [[Rcpp::export]]
+SEXP cdist(NumericMatrix x){
+  int n=x.nrow(),ncol=x.ncol(),i,j,k;
+  NumericMatrix out(n,n);
+  for(i=0;i<n;i++)
+    for(j=0;j<n;j++){
+      double sum=0;
+      for(k=0;k<ncol;k++)sum+=pow(x(i,k)-x(j,k),2);
+      out(i,j)=sqrt(sum);
+    }
+  return Rcpp::wrap(out);
+}
