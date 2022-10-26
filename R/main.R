@@ -8,7 +8,7 @@
 #' @param nfeat The number of features to select [default = 1000]
 #' @param selection.method The method to use selecting highly-variable features [default = "deviance"]
 #' @param decay.k The number of neighbors to use for the decay function [default = 5]
-#' @param decay.alpha The power of the decay function [default = 2] 
+#' @param decay.alpha The power of the decay function [default = 1] 
 #' @param cpca.threshold The minimum amount of variance to be explained by common PCs before adding individual PCs [default = 0.8]
 #' @param cpca.kc The number of common PCs to calculate [default = 20]
 #' @param cpca.ki The number of invididual PCs to calcuate [default = 20]
@@ -16,9 +16,8 @@
 #' @param mu.loss Mu parameter of the loss function [default = 1]
 #' @param lambda.loss Lambda parameter of the loss function [default = 100]
 #' @param beta.loss Beta parameter of the loss function [default = 1]
-#' @param snn.k The number of neighbors to use for building the SNN graph [default = "rice" (= (2 * n^(1/3)))]
-#' @param snn.add The number of neighbors to add in addition to k to use for building the SNN graph [default = 20]
-#' @param snn.rare A boolean (TRUE or FALSE) indicating if rare cell index should be calculated from the distance to the Kth neighbour during SNN graph construction [default = TRUE]
+#' @param snn.k The number of neighbors to use for building the SNN graph [default = 50]
+#' @param rare.k The number of neighbors to calculate rareity scores [default = 10]
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param iter.max The maximum number of iterations to perform [default = 100]
 #' @param verbose Boolean (TRUE or FALSE) determining verbosity [default = TRUE]
@@ -33,7 +32,7 @@
 #' @useDynLib JOINTLY
 #'
 
-jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, selection.method = "deviance", decay.k = 5, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 100, mu.loss = 1, lambda.loss = 100, beta.loss = 1, snn.k = "rice", snn.add = 20, snn.rare = TRUE, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
+jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, selection.method = "deviance", decay.k = 5, decay.alpha = 1, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 100, mu.loss = 1, lambda.loss = 100, beta.loss = 1, snn.k = 50, k.rare = 10, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
   
   # Preprocess
@@ -46,15 +45,12 @@ jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, selectio
   norm.list <- cpca.res$normalized
   cpca.list <- cpca.res$cpca 
   
-  # alphaDecay kernel
-  if (verbose) { message("Computing alpha decay kernel.")}
-  kernel.list <- R.utils::doCall(JOINTLY::alphaDecay, args = ..., alwaysArgs = list(dataset.list = cpca.list, k = decay.k, alpha = decay.alpha))
-  
-  # SNN graphs
-  if (verbose) { message("Computing SNN graph.")}
-  snn.res <- R.utils::doCall(JOINTLY::computeSNN, args = ..., alwaysArgs = list(dataset.list = cpca.list, k = snn.k, add = snn.add, rare = snn.rare))
-  snn.list <- snn.res$snn
-  rare.list <- snn.res$rare
+  # prepareData
+  if (verbose) { message("Computing decay kernels, SNN graphs and rareity scores.")}
+  inputs <- R.utils::doCall(JOINTLY::prepareData, args = ..., alwaysArgs = list(dataset.list = cpca.list, k.decay = decay.k, alpha = decay.alpha, k.rare = rare.k, k.snn = snn.k))
+  kernel.list <- inputs$kernels
+  snn.list <- inputs$snn
+  rare.list <- inputs$rareity
   
   # Solve
   if (verbose) { message("Solving matrices.")}
