@@ -245,6 +245,8 @@ cpca = function(dataset.list, nfeat = 1000, selection.method = "deviance", thres
   C.list <- list()
   for (ds in 1:length(scale.list)) {
     C.list[[ds]] <- t(t(common) %*% t(scale.list[[ds]]))
+    rownames(C.list[[ds]]) <- colnames(dataset.list[[ds]])
+    names(C.list)[ds] <- names(dataset.list)[ds]
   }
   
   ## Return
