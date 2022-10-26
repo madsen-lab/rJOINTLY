@@ -53,11 +53,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cdist
+NumericMatrix cdist(NumericMatrix x);
+RcppExport SEXP _JOINTLY_cdist(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(cdist(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_JOINTLY_matDiMult", (DL_FUNC) &_JOINTLY_matDiMult, 3},
     {"_JOINTLY_matTriMult", (DL_FUNC) &_JOINTLY_matTriMult, 4},
     {"_JOINTLY_matQuadMult", (DL_FUNC) &_JOINTLY_matQuadMult, 5},
+    {"_JOINTLY_cdist", (DL_FUNC) &_JOINTLY_cdist, 1},
     {NULL, NULL, 0}
 };
 

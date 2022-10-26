@@ -1,7 +1,11 @@
-// [[Rcpp::depends(RcppEigen)]]
+// [[Rcpp::depends(Rcpp, RcppEigen)]]
 // [[Rcpp::plugins(openmp)]]
 
 #include <RcppEigen.h>
+#include <Rcpp.h>
+#include <string>
+
+using namespace Rcpp;
 
 // [[Rcpp::export]]
 SEXP matDiMult(const Eigen::Map<Eigen::MatrixXd> A,
@@ -37,7 +41,7 @@ SEXP matQuadMult(const Eigen::Map<Eigen::MatrixXd> A,
 }
 
 // [[Rcpp::export]]
-SEXP cdist(NumericMatrix x){
+NumericMatrix cdist(NumericMatrix x){
   int n=x.nrow(),ncol=x.ncol(),i,j,k;
   NumericMatrix out(n,n);
   for(i=0;i<n;i++)
@@ -46,5 +50,5 @@ SEXP cdist(NumericMatrix x){
       for(k=0;k<ncol;k++)sum+=pow(x(i,k)-x(j,k),2);
       out(i,j)=sqrt(sum);
     }
-  return Rcpp::wrap(out);
+    out;
 }
