@@ -40,6 +40,10 @@ alphaDecay = function(dataset.list, k = 5, alpha = 2, theta = 1e-4) {
       i <- as.numeric(i)
       idx_tmp <- nn.idx[idx_thresh,]
       j <- as.numeric(idx_tmp)
+    } else {
+      K <- c()
+      i <- c()
+      j <- c()
     }
     
     # Expand K till 90% of the data is covered
