@@ -13,3 +13,7 @@ matQuadMult <- function(A, B, C, D, n_cores) {
     .Call('_JOINTLY_matQuadMult', PACKAGE = 'JOINTLY', A, B, C, D, n_cores)
 }
 
+cdist <- function(x) {
+    .Call('_JOINTLY_cdist', PACKAGE = 'JOINTLY', x)
+}
+

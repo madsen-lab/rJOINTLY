@@ -29,6 +29,7 @@
 #' @import R.utils
 #' @importFrom methods as
 #' @importFrom stats coef lm.fit rnorm runif
+#' @useDynLib JOINTLY
 #'
 
 jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, selection.method = "deviance", decay.k = 5, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 100, mu.loss = 1, lambda.loss = 100, beta.loss = 1, snn.k = "rice", snn.add = 20, snn.rare = TRUE, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
