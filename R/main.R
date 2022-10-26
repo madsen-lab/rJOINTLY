@@ -27,6 +27,7 @@
 #' @return A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
 #' @export
 #' @import R.utils
+#' @import Rcpp
 #' @importFrom methods as
 #' @importFrom stats coef lm.fit rnorm runif
 #' @useDynLib JOINTLY
