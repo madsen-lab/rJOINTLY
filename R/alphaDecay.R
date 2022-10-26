@@ -10,7 +10,6 @@
 #' @return List (per-batch) of alpha decay kernels.
 #' @export
 #' @import Matrix
-#' @import RANN
 
 alphaDecay = function(dataset.list, k = 5, alpha = 1, threshold = 1e-4) {
   # TODO: Check that alpha is OK
