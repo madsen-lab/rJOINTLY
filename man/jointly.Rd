@@ -11,7 +11,7 @@ jointly(
   nfeat = 1000,
   selection.method = "deviance",
   decay.k = 5,
-  decay.alpha = 2,
+  decay.alpha = 1,
   cpca.threshold = 0.8,
   cpca.kc = 20,
   cpca.ki = 20,
@@ -19,9 +19,8 @@ jointly(
   mu.loss = 1,
   lambda.loss = 100,
   beta.loss = 1,
-  snn.k = "rice",
-  snn.add = 20,
-  snn.rare = TRUE,
+  snn.k = 50,
+  k.rare = 10,
   ncpu = 1,
   iter.max = 100,
   verbose = TRUE,
@@ -41,7 +40,7 @@ jointly(
 
 \item{decay.k}{The number of neighbors to use for the decay function [default = 5]}
 
-\item{decay.alpha}{The power of the decay function [default = 2]}
+\item{decay.alpha}{The power of the decay function [default = 1]}
 
 \item{cpca.threshold}{The minimum amount of variance to be explained by common PCs before adding individual PCs [default = 0.8]}
 
@@ -57,11 +56,7 @@ jointly(
 
 \item{beta.loss}{Beta parameter of the loss function [default = 1]}
 
-\item{snn.k}{The number of neighbors to use for building the SNN graph [default = "rice" (= (2 * n^(1/3)))]}
-
-\item{snn.add}{The number of neighbors to add in addition to k to use for building the SNN graph [default = 20]}
-
-\item{snn.rare}{A boolean (TRUE or FALSE) indicating if rare cell index should be calculated from the distance to the Kth neighbour during SNN graph construction [default = TRUE]}
+\item{snn.k}{The number of neighbors to use for building the SNN graph [default = 50]}
 
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
 
@@ -70,6 +65,8 @@ jointly(
 \item{verbose}{Boolean (TRUE or FALSE) determining verbosity [default = TRUE]}
 
 \item{...}{Additional parameters to pass to functions within JOINTLY}
+
+\item{rare.k}{The number of neighbors to calculate rareity scores [default = 10]}
 }
 \value{
 A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
