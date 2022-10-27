@@ -99,7 +99,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, norm.list, k = 20, it
     Hmat <- Hmat_new
     Fmat <- Fmat_new
     Wmat <- Wmat_new
-    print(iter)
+    if (iter in unique(ceiling(1:iter.max / 10)) * 10) { message(paste("\t", (iter / iter.max)*100, " % completed.", sep="")) } 
   }
   
   # Set names
