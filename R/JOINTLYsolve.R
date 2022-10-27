@@ -96,6 +96,11 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, norm.list, k = 20, it
     print(iter)
   }
   
+  # Set names
+  names(Hmat) <- names(kernel.list)
+  names(Fmat) <- names(kernel.list)
+  names(Wmat) <- names(kernel.list)
+  
   # Return
   return(list(Hmat = Hmat, Fmat = Fmat, Wmat = Wmat))
 }
