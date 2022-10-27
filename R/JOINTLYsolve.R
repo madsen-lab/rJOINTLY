@@ -27,10 +27,16 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, norm.list, k = 20, it
   
   ## Initialize matrices
   Hmat <- list()
-  for (ds in 1:length(kernel.list)) { Hmat[[ds]] <- matrix(runif(nrow(kernel.list[[ds]])*k), nrow = k) }
+  for (ds in 1:length(kernel.list)) { 
+    Hmat[[ds]] <- matrix(runif(nrow(kernel.list[[ds]])*k), nrow = k) 
+    colnames(Hmat[[ds]]) <- rownames(kernel.list[[ds]])
+  }
   Hmat_new <- Hmat
   Fmat <- list()
-  for (ds in 1:length(kernel.list)) { Fmat[[ds]] <- matrix(runif(nrow(kernel.list[[ds]])*k), ncol = k) }
+  for (ds in 1:length(kernel.list)) { 
+    Fmat[[ds]] <- matrix(runif(nrow(kernel.list[[ds]])*k), ncol = k)
+    rownames(Fmat[[ds]]) <- rownames(kernel.list[[ds]])
+  }
   Fmat_new <- Fmat
 
   ## Calculate matrices
