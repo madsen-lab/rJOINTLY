@@ -23,7 +23,7 @@
 #' @param verbose Boolean (TRUE or FALSE) determining verbosity [default = TRUE]
 #' @param ... Additional parameters to pass to functions within JOINTLY
 #'
-#' @return A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
+#' @return The same type of object as inputted to the function with added an added dimensional reduction called JOINTLY, which can be used for embedding and clustering.
 #' @export
 #' @import R.utils
 #' @import Rcpp
@@ -35,27 +35,69 @@
 jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, selection.method = "deviance", decay.k = 5, decay.alpha = 1, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 100, mu.loss = 1, lambda.loss = 100, beta.loss = 1, snn.k = 50, rare.k = 10, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
   
-  # Preprocess
+  ## Preprocess
   if (verbose) { message("Preprocessing dataset.")}
   preprocessed <- R.utils::doCall(JOINTLY::preprocess, args = ..., alwaysArgs = list(data = data, batch.var = batch.var))
   
-  # CPCA
+  ## CPCA
   if (verbose) { message("Computing consensus PCA.")}
   cpca.res <- R.utils::doCall(JOINTLY::cpca, args = ..., alwaysArgs = list(dataset.list = preprocessed, nfeat = nfeat, selection.method = selection.method, threshold = cpca.threshold, kc = cpca.kc, ki = cpca.ki, ncpu = ncpu, iter.max = iter.max, verbose = verbose))
   norm.list <- cpca.res$normalized
   cpca.list <- cpca.res$cpca 
   
-  # prepareData
+  ## prepareData
   if (verbose) { message("Computing decay kernels, SNN graphs and rareity scores.")}
   inputs <- R.utils::doCall(JOINTLY::prepareData, args = ..., alwaysArgs = list(dataset.list = cpca.list, k.decay = decay.k, alpha = decay.alpha, k.rare = rare.k, k.snn = snn.k))
   kernel.list <- inputs$kernels
   snn.list <- inputs$snn
   rare.list <- inputs$rareity
   
-  # Solve
+  ## Solve
   if (verbose) { message("Solving matrices.")}
   mat <- R.utils::doCall(JOINTLY::JOINTLYsolve, args = ..., alwaysArgs = list(kernel.list = kernel.list, snn.list = snn.list, rare.list = rare.list, norm.list = norm.list, k = factors, iter.max = iter.max, alpha = alpha.loss, mu = mu.loss, lambda = lambda.loss, beta = beta.loss, ncpu = ncpu))
-
+  
+  ## Finalize results
+  # Scale the H matrices
+  if (verbose) { message("Finalizing.")}
+  Hmat <- mat$Hmat
+  for (i in 1:length(Hmat)) {	
+    Hmat[[i]] <- t(scale(t(Hmat[[i]])))
+    rownames(Hmat[[i]]) <- paste("JOINTLY_", seq(1,factors,1), sep="")
+  }
+  
+  # Insert results into input objects
+  if (is.null(batch.var)) {
+    result.list <- list()
+    names(result.list) <- names(data)
+    for (ds in 1:length(data)) {
+      tmp <- data[[ds]]
+      res <- t(Hmat[[which(names(Hmat) == names(data)[[ds]])]])
+      res <- res[ match(colnames(tmp), rownames(res)),]
+      colnames(res) <- paste("JOINTLY_", seq(1, ncol(res),1), sep="")
+      if (class(tmp)[1] == "Seurat") {
+        tmp[["JOINTLY"]] <- Seurat::CreateDimReducObject(res, assay = "RNA")
+      } else if (class(tmp)[1] == "SingleCellExperiment") {
+        SingleCellExperiment::reducedDim(tmp, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(res)
+      } else {
+        tmp <- res
+      }
+      result.list[[ds]] <- tmp
+    }
+  } else {
+    res <- t(do.call("cbind", Hmat))
+    res <- res[ match(colnames(data), rownames(res)),]
+    colnames(res) <- paste("JOINTLY_", seq(1, ncol(res),1), sep="")
+    if (class(data)[1] == "Seurat") {
+      data[["JOINTLY"]] <- Seurat::CreateDimReducObject(res, assay = "RNA")
+      result.list <- data
+    } else if (class(data)[1] == "SingleCellExperiment") {
+      SingleCellExperiment::reducedDim(data, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(res)
+      result.list <- data
+    } else {
+      result.list <- res
+    }
+  }
+  
   # Return
-  return(mat)
+  return(result.list)
 }
