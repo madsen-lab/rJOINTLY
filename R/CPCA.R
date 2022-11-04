@@ -250,5 +250,5 @@ cpca = function(dataset.list, nfeat = 1000, selection.method = "deviance", thres
   }
   
   ## Return
-  return(list(cpca = C.list, normalized = norm.list))
+  return(list(cpca = C.list, normalized = norm.list, svd = sc))
 }
