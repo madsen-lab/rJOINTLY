@@ -9,18 +9,19 @@ jointly(
   batch.var = NULL,
   factors = 20,
   nfeat = 1000,
+  init = "clustering",
   selection.method = "deviance",
-  decay.k = 5,
-  decay.alpha = 1,
+  decay.k = 10,
+  decay.alpha = 2,
   cpca.threshold = 0.8,
   cpca.kc = 20,
   cpca.ki = 20,
-  alpha.loss = 100,
-  mu.loss = 1,
-  lambda.loss = 100,
-  beta.loss = 1,
-  snn.k = 50,
-  k.rare = 10,
+  alpha.loss = 10,
+  mu.loss = 10,
+  lambda.loss = 5,
+  beta.loss = 10,
+  snn.k = 100,
+  k.rare = 5,
   ncpu = 1,
   iter.max = 100,
   verbose = TRUE,
@@ -36,11 +37,13 @@ jointly(
 
 \item{nfeat}{The number of features to select [default = 1000]}
 
+\item{init}{The method for initializing the H and F matrices ("random" or "clustering"). [default = "clustering"]}
+
 \item{selection.method}{The method to use selecting highly-variable features [default = "deviance"]}
 
-\item{decay.k}{The number of neighbors to use for the decay function [default = 5]}
+\item{decay.k}{The number of neighbors to use for the decay function [default = 10]}
 
-\item{decay.alpha}{The power of the decay function [default = 1]}
+\item{decay.alpha}{The power of the decay function [default = 2]}
 
 \item{cpca.threshold}{The minimum amount of variance to be explained by common PCs before adding individual PCs [default = 0.8]}
 
@@ -48,15 +51,15 @@ jointly(
 
 \item{cpca.ki}{The number of invididual PCs to calcuate [default = 20]}
 
-\item{alpha.loss}{Alpha parameter of the loss function [default = 100]}
+\item{alpha.loss}{Alpha parameter of the loss function [default = 10]}
 
-\item{mu.loss}{Mu parameter of the loss function [default = 1]}
+\item{mu.loss}{Mu parameter of the loss function [default = 10]}
 
-\item{lambda.loss}{Lambda parameter of the loss function [default = 100]}
+\item{lambda.loss}{Lambda parameter of the loss function [default = 5]}
 
-\item{beta.loss}{Beta parameter of the loss function [default = 1]}
+\item{beta.loss}{Beta parameter of the loss function [default = 10]}
 
-\item{snn.k}{The number of neighbors to use for building the SNN graph [default = 50]}
+\item{snn.k}{The number of neighbors to use for building the SNN graph [default = 100]}
 
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
 
@@ -66,7 +69,7 @@ jointly(
 
 \item{...}{Additional parameters to pass to functions within JOINTLY}
 
-\item{rare.k}{The number of neighbors to calculate rareity scores [default = 10]}
+\item{rare.k}{The number of neighbors to calculate rareity scores [default = 5]}
 }
 \value{
 A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.

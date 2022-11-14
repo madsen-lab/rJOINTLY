@@ -8,14 +8,17 @@ JOINTLYsolve(
   kernel.list,
   snn.list,
   rare.list,
-  norm.list,
+  cpca.result,
+  init = "clustering",
   k = 20,
   iter.max = 100,
-  alpha = 100,
-  mu = 1,
-  lambda = 100,
-  beta = 1,
-  ncpu = 1
+  alpha = 10,
+  mu = 10,
+  lambda = 5,
+  beta = 10,
+  progressbar = TRUE,
+  ncpu = 1,
+  bpparam = SerialParam()
 )
 }
 \arguments{
@@ -25,25 +28,31 @@ JOINTLYsolve(
 
 \item{rare.list}{A list (per-batch) of rare cell indices. See \link{computeSNN}}
 
-\item{norm.list}{A list (per-batch) of normalized counts for highly variable genes. See \link{cpca}}
+\item{cpca.result}{The results from CPCA analysis. See \link{cpca}}
+
+\item{init}{The name of the method to use for initialization ("random" or "clustering"). [default = "clustering"]}
 
 \item{k}{The number of factors to calculate [default = 20]}
 
 \item{iter.max}{The maximum number of iterations to perform [default = 100]}
 
-\item{alpha}{Alpha parameter of the loss function [default = 100]}
+\item{alpha}{Alpha parameter of the loss function [default = 10]}
 
-\item{mu}{Mu parameter of the loss function [default = 1]}
+\item{mu}{Mu parameter of the loss function [default = 10]}
 
-\item{lambda}{Lambda parameter of the loss function [default = 100]}
+\item{lambda}{Lambda parameter of the loss function [default = 5]}
 
-\item{beta}{Beta parameter of the loss function [default = 1]}
+\item{beta}{Beta parameter of the loss function [default = 10]}
+
+\item{progressbar}{A logical indicating whether or not to print a progress bar [default = TRUE]}
 
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
+
+\item{bpparam}{The name of the type of BPPARAM object to use for sequential or parallel processing [defult = SerialParam()]}
 }
 \value{
-A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
+A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
 }
 \description{
-Function to solve NMF problems
+Function to solve the NMF problem in JOINTLY
 }
