@@ -6,6 +6,7 @@
 #' @param batch.var A variable to split Seurat or SingleCellExperiment objects into a list [default = NULL]
 #' @param factors The number of factors to calculate [default = 20]
 #' @param nfeat The number of features to select [default = 1000]
+#' @param init The method to use for initializing H and F matrices ("random" or "clustering"). [default = "clustering"]
 #' @param selection.method The method to use selecting highly-variable features [default = "deviance"]
 #' @param decay.k The number of neighbors to use for the decay function [default = 5]
 #' @param decay.alpha The power of the decay function [default = 1] 
@@ -32,7 +33,7 @@
 #' @useDynLib JOINTLY
 #'
 
-jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, selection.method = "deviance", decay.k = 5, decay.alpha = 1, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 100, mu.loss = 1, lambda.loss = 100, beta.loss = 1, snn.k = 50, rare.k = 10, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
+jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "clustering", selection.method = "deviance", decay.k = 5, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 10, mu.loss = 10, lambda.loss = 5, beta.loss = 10, snn.k = 100, rare.k = 5, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
   
   ## Preprocess
