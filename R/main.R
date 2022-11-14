@@ -70,9 +70,9 @@ jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "
       Hmat.tmp <- Hmat[ rownames(Hmat) %in% colnames(data[[ds]]),]
       Hmat.tmp <- Hmat.tmp[ match(colnames(data[[ds]]), rownames(Hmat.tmp)),]
       if (class(tmp)[1] == "Seurat") {
-        tmp[["JOINTLY"]] <- Seurat::CreateDimReducObject(res, assay = "RNA")
+        tmp[["JOINTLY"]] <- Seurat::CreateDimReducObject(Hmat.tmp, assay = "RNA")
       } else if (class(tmp)[1] == "SingleCellExperiment") {
-        SingleCellExperiment::reducedDim(tmp, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(res)
+        SingleCellExperiment::reducedDim(tmp, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(Hmat.tmp)
       } else {
         tmp <- Hmat.tmp
       }
@@ -81,10 +81,10 @@ jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "
   } else {
     Hmat <- Hmat[ match(colnames(data), rownames(Hmat)),]
     if (class(data)[1] == "Seurat") {
-      data[["JOINTLY"]] <- Seurat::CreateDimReducObject(res, assay = "RNA")
+      data[["JOINTLY"]] <- Seurat::CreateDimReducObject(Hmat, assay = "RNA")
       result.list <- data
     } else if (class(data)[1] == "SingleCellExperiment") {
-      SingleCellExperiment::reducedDim(data, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(res)
+      SingleCellExperiment::reducedDim(data, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(Hmat)
       result.list <- data
     } else {
       result.list <- Hmat
