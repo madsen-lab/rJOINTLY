@@ -58,7 +58,7 @@ prepareData = function(dataset.list, k.decay = 10, k.rare = 5, k.snn = 100, alph
     names(kernel.list)[ds] <- names(dataset.list)[ds]
     
     # Compute SNN
-    snn.list[[ds]] <- as.matrix(Seurat::FindNeighbors(data, verbose = FALSE, compute.SNN = TRUE, k.param = k.snn, prune.SNN = prune)$snn)
+    snn.list[[ds]] <- Seurat::FindNeighbors(data, verbose = FALSE, compute.SNN = TRUE, k.param = k.snn, prune.SNN = prune)
     names(snn.list)[ds] <- names(dataset.list)[ds]
   }
   

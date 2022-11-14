@@ -5,7 +5,7 @@
 #' @param kernel.list A list (per-batch) of kernels. See \link{alphaDecay}
 #' @param snn.list A list (per-batch) of SNN graphs. See \link{computeSNN}
 #' @param rare.list A list (per-batch) of rare cell indices. See \link{computeSNN}
-#' @param norm.list A list (per-batch) of normalized counts for highly variable genes. See \link{cpca}
+#' @param cpca.result The results from CPCA analysis. See \link{cpca}
 #' @param init The name of the method to use for initialization ("random" or "clustering"). [default = "clustering"]
 #' @param k The number of factors to calculate [default = 20]
 #' @param iter.max The maximum number of iterations to perform [default = 100]
@@ -58,7 +58,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
       Fmat[[ds]] <- t(coefs)
     }
   }
-
+  
   ## Calculate remaining matrices
   Vmat <- list()
   DAmat <- list()
@@ -126,7 +126,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
       # Return
       return(list(Hnew = H_new, Fnew = F_new, Wnew = W_new))
     },1:length(kernel.list), SIMPLIFY = FALSE, BPPARAM = bpparam)
-
+    
     # Insert new matrices
     for (ds in 1:length(kernel.list)) {
       Hmat[[ds]] <- iter.result[[ds]]$Hnew
@@ -149,7 +149,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
     
     # Calculate percent done
     percent <- iter / iter.max * 100
-
+    
     # Print progress bar
     if (progressbar) {
       if (iter < iter.max) {
@@ -157,7 +157,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
       } else if (iter == iter.max) { 
         cat(paste(sprintf('\r[%-50s] %d%%', paste(rep('=', percent / 2), collapse = ''), floor(percent)), "                                           ", sep=""))
         cat('\n') }
-      }
+    }
   }
   
   # Set names
