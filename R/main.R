@@ -7,6 +7,7 @@
 #' @param factors The number of factors to calculate [default = 20]
 #' @param nfeat The number of features to select [default = 1000]
 #' @param init The method for initializing the H and F matrices ("random" or "clustering"). [default = "clustering"]
+#' @param bpparam The *Param backend to use for sequential or parallel processing. [default = SerialParam()]
 #' @param selection.method The method to use selecting highly-variable features [default = "deviance"]
 #' @param decay.k The number of neighbors to use for the decay function [default = 10]
 #' @param decay.alpha The power of the decay function [default = 2] 
@@ -33,7 +34,7 @@
 #' @useDynLib JOINTLY
 #'
 
-jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "clustering", selection.method = "deviance", decay.k = 10, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 10, mu.loss = 10, lambda.loss = 5, beta.loss = 10, snn.k = 100, k.rare = 5, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
+jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "clustering", bpparam = SerialParam(), selection.method = "deviance", decay.k = 10, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 10, mu.loss = 10, lambda.loss = 5, beta.loss = 10, snn.k = 100, k.rare = 5, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
   
   # Preprocess
@@ -55,7 +56,7 @@ jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "
   
   # Solve
   if (verbose) { message("Solving matrices.")}
-  mat <- R.utils::doCall(JOINTLY::JOINTLYsolve, args = ..., alwaysArgs = list(kernel.list = kernel.list, snn.list = snn.list, rare.list = rare.list, cpca.result = cpca.res, k = factors, init = init, iter.max = iter.max, alpha = alpha.loss, mu = mu.loss, lambda = lambda.loss, beta = beta.loss, ncpu = ncpu, progressbar = verbose))
+  mat <- R.utils::doCall(JOINTLY::JOINTLYsolve, args = ..., alwaysArgs = list(kernel.list = kernel.list, snn.list = snn.list, rare.list = rare.list, cpca.result = cpca.res, k = factors, init = init, iter.max = iter.max, alpha = alpha.loss, mu = mu.loss, lambda = lambda.loss, beta = beta.loss, ncpu = ncpu, progressbar = verbose, bpparam = bpparam))
   
   ## Finalize results
   if (verbose) { message("Finalizing.")}
