@@ -19,7 +19,7 @@
 #' @param lambda.loss Lambda parameter of the loss function [default = 5]
 #' @param beta.loss Beta parameter of the loss function [default = 10]
 #' @param snn.k The number of neighbors to use for building the SNN graph [default = 100]
-#' @param rare.k The number of neighbors to calculate rareity scores [default = 5]
+#' @param rare.k The number of neighbors to calculate rareity scores [default = 20]
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param iter.max The maximum number of iterations to perform [default = 100]
 #' @param verbose Boolean (TRUE or FALSE) determining verbosity [default = TRUE]
@@ -34,7 +34,7 @@
 #' @useDynLib JOINTLY
 #'
 
-jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "clustering", bpparam = SerialParam(), selection.method = "deviance", decay.k = 10, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 10, mu.loss = 10, lambda.loss = 5, beta.loss = 10, snn.k = 100, rare.k = 5, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
+jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "clustering", bpparam = SerialParam(), selection.method = "deviance", decay.k = 10, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 10, mu.loss = 10, lambda.loss = 5, beta.loss = 10, snn.k = 100, rare.k = 20, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
   # TODO: Check for duplicated barcode names
   # TODO: Check for missing names for datatsets already provided as a list
