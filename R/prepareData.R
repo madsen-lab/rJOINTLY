@@ -3,10 +3,10 @@
 #' @description Function to compute the alpha decay kernels, rareity scores and SNN graphs
 #'
 #' @param dataset.list A list (per batch) of CPCAs. See \link{cpca}
-#' @param k.decay The number of neighbors to use for the decay function [default = 5]
-#' @param k.rare The index of the nearest neighbor to use for rare scoring [default = 10]
-#' @param k.snn The number of neighbors to use for the SNN calculations [default = 50]
-#' @param alpha The power of the decay function [default = 1] 
+#' @param k.decay The number of neighbors to use for the decay function [default = 10]
+#' @param k.rare The index of the nearest neighbor to use for rare scoring [default = 5]
+#' @param k.snn The number of neighbors to use for the SNN calculations [default = 100]
+#' @param alpha The power of the decay function [default = 2] 
 #' @param threshold Threshold the minimum similarity between cells [default = 1e-4]
 #' @param prune The minimum number of normalized neighbors between cells to retain the eddge [default = 1/15]
 #' @param rare A boolean (TRUE or FALSE) indicating if rare cell index should be calculated from the distance to the Kth neighbour [default = TRUE]
