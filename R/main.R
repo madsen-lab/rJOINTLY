@@ -36,6 +36,8 @@
 
 jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "clustering", bpparam = SerialParam(), selection.method = "deviance", decay.k = 10, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 10, mu.loss = 10, lambda.loss = 5, beta.loss = 10, snn.k = 100, k.rare = 5, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
+  # TODO: Check for duplicated barcode names
+  # TODO: Check for missing names for datatsets already provided as a list
   
   # Preprocess
   if (verbose) { message("Preprocessing dataset.")}
@@ -60,28 +62,24 @@ jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "
   
   ## Finalize results
   if (verbose) { message("Finalizing.")}
-  Hmat <- Hmat.scaled
+  Hmat <- mat$Hmat.scaled
   if (is.null(batch.var)) {
     result.list <- list()
-    names(result.list) <- names(data)
     for (ds in 1:length(data)) {
       tmp <- data[[ds]]
-      res <- t(Hmat[[which(names(Hmat) == names(data)[[ds]])]])
-      res <- res[ match(colnames(tmp), rownames(res)),]
-      colnames(res) <- paste("JOINTLY_", seq(1, ncol(res),1), sep="")
+      Hmat.tmp <- Hmat[ rownames(Hmat) %in% colnames(data[[ds]]),]
+      Hmat.tmp <- Hmat.tmp[ match(colnames(data[[ds]]), rownames(Hmat.tmp)),]
       if (class(tmp)[1] == "Seurat") {
         tmp[["JOINTLY"]] <- Seurat::CreateDimReducObject(res, assay = "RNA")
       } else if (class(tmp)[1] == "SingleCellExperiment") {
         SingleCellExperiment::reducedDim(tmp, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(res)
       } else {
-        tmp <- res
+        tmp <- Hmat.tmp
       }
       result.list[[ds]] <- tmp
     }
   } else {
-    res <- t(do.call("cbind", Hmat))
-    res <- res[ match(colnames(data), rownames(res)),]
-    colnames(res) <- paste("JOINTLY_", seq(1, ncol(res),1), sep="")
+    Hmat <- Hmat[ match(colnames(data), rownames(Hmat)),]
     if (class(data)[1] == "Seurat") {
       data[["JOINTLY"]] <- Seurat::CreateDimReducObject(res, assay = "RNA")
       result.list <- data
@@ -89,7 +87,7 @@ jointly <- function(data, batch.var = NULL, factors = 20, nfeat = 1000, init = "
       SingleCellExperiment::reducedDim(data, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(res)
       result.list <- data
     } else {
-      result.list <- res
+      result.list <- Hmat
     }
   }
   
