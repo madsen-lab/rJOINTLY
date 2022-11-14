@@ -4,7 +4,7 @@
 #'
 #' @param dataset.list A list (per batch) of CPCAs. See \link{cpca}
 #' @param k.decay The number of neighbors to use for the decay function [default = 10]
-#' @param k.rare The index of the nearest neighbor to use for rare scoring [default = 5]
+#' @param k.rare The index of the nearest neighbor to use for rare scoring [default = 20]
 #' @param k.snn The number of neighbors to use for the SNN calculations [default = 100]
 #' @param alpha The power of the decay function [default = 2] 
 #' @param threshold Threshold the minimum similarity between cells [default = 1e-4]
@@ -16,7 +16,7 @@
 #' @import Matrix
 #' @import Seurat
 
-prepareData = function(dataset.list, k.decay = 10, k.rare = 5, k.snn = 100, alpha = 2, threshold = 1e-4, prune = 1/15, rare = TRUE) {
+prepareData = function(dataset.list, k.decay = 10, k.rare = 20, k.snn = 100, alpha = 2, threshold = 1e-4, prune = 1/15, rare = TRUE) {
   # TODO: Check that alpha is OK
   # Setup to capture results
   kernel.list <- list()
