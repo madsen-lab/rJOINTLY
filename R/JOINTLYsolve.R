@@ -23,7 +23,7 @@
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", k = 20, iter.max = 100, alpha = 10, mu = 10, lambda = 5, beta = 10, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", k = 15, iter.max = 100, alpha = 10, mu = 10, lambda = 5, beta = 10, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
   ## Convert to dense matrices
   norm.list <- list()
   for (ds in 1:length(kernel.list)) { 
