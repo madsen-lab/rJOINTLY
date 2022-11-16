@@ -49,7 +49,7 @@ cpca = function(dataset.list, nfeat = 1000, selection.method = "deviance", thres
     for (ds in 1:length(dataset.list)) {
       seu.list[[ds]] <- Seurat::CreateSeuratObject(counts = dataset.list[[ds]])
     }
-    sel.features <- Seurat::SelectIntegrationFeatures(seu.list, nfeatures = 1000, verbose = FALSE)
+    sel.features <- Seurat::SelectIntegrationFeatures(seu.list, nfeatures = nfeat, verbose = FALSE)
   } else if (selection.method == "none") {
     sel.features <- intersect(rownames(dataset.list[[1]]), rownames(dataset.list[[2]]))
     if (length(dataset.list) >= 3) {
