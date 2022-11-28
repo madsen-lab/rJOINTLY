@@ -7,9 +7,10 @@
 jointly(
   data,
   batch.var = NULL,
-  factors = 20,
+  factors = 15,
   nfeat = 1000,
   init = "clustering",
+  bpparam = SerialParam(),
   selection.method = "deviance",
   decay.k = 10,
   decay.alpha = 2,
@@ -21,7 +22,7 @@ jointly(
   lambda.loss = 5,
   beta.loss = 10,
   snn.k = 100,
-  k.rare = 5,
+  rare.k = 20,
   ncpu = 1,
   iter.max = 100,
   verbose = TRUE,
@@ -33,11 +34,13 @@ jointly(
 
 \item{batch.var}{A variable to split Seurat or SingleCellExperiment objects into a list [default = NULL]}
 
-\item{factors}{The number of factors to calculate [default = 20]}
+\item{factors}{The number of factors to calculate [default = 15]}
 
 \item{nfeat}{The number of features to select [default = 1000]}
 
 \item{init}{The method for initializing the H and F matrices ("random" or "clustering"). [default = "clustering"]}
+
+\item{bpparam}{The *Param backend to use for sequential or parallel processing. [default = SerialParam()]}
 
 \item{selection.method}{The method to use selecting highly-variable features [default = "deviance"]}
 
@@ -61,6 +64,8 @@ jointly(
 
 \item{snn.k}{The number of neighbors to use for building the SNN graph [default = 100]}
 
+\item{rare.k}{The number of neighbors to calculate rareity scores [default = 20]}
+
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
 
 \item{iter.max}{The maximum number of iterations to perform [default = 100]}
@@ -68,8 +73,6 @@ jointly(
 \item{verbose}{Boolean (TRUE or FALSE) determining verbosity [default = TRUE]}
 
 \item{...}{Additional parameters to pass to functions within JOINTLY}
-
-\item{rare.k}{The number of neighbors to calculate rareity scores [default = 5]}
 }
 \value{
 A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.

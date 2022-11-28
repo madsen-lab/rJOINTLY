@@ -10,7 +10,8 @@ JOINTLYsolve(
   rare.list,
   cpca.result,
   init = "clustering",
-  k = 20,
+  k = 15,
+  m = 5,
   iter.max = 100,
   alpha = 10,
   mu = 10,
@@ -32,7 +33,9 @@ JOINTLYsolve(
 
 \item{init}{The name of the method to use for initialization ("random" or "clustering"). [default = "clustering"]}
 
-\item{k}{The number of factors to calculate [default = 20]}
+\item{k}{The number of factors to calculate [default = 15]}
+
+\item{m}{The fuzzy parameter of for cluster initialization [default = 5]}
 
 \item{iter.max}{The maximum number of iterations to perform [default = 100]}
 

@@ -15,4 +15,4 @@ biocViews:
 Imports: Rcpp (>= 1.0.7), RcppEigen, Matrix, R.utils, RANN, Seurat, SingleCellExperiment, scry, methods, BiocParallel, e1071, SharedObject
 LinkingTo: Rcpp, RcppEigen
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2

@@ -7,7 +7,7 @@
 prepareData(
   dataset.list,
   k.decay = 10,
-  k.rare = 5,
+  k.rare = 20,
   k.snn = 100,
   alpha = 2,
   threshold = 1e-04,
@@ -20,7 +20,7 @@ prepareData(
 
 \item{k.decay}{The number of neighbors to use for the decay function [default = 10]}
 
-\item{k.rare}{The index of the nearest neighbor to use for rare scoring [default = 5]}
+\item{k.rare}{The index of the nearest neighbor to use for rare scoring [default = 20]}
 
 \item{k.snn}{The number of neighbors to use for the SNN calculations [default = 100]}
 
