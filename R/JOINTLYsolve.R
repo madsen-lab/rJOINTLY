@@ -48,7 +48,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   } else if (init == "clustering") {
     Hmat <- list()
     for (ds in 1:length(kernel.list)) {
-      set.seed(42)
+      #set.seed(42)
       Hmat[[ds]] <- t(e1071::cmeans(cpca.result$cpca[[ds]], center = k, m = m)$membership)
       colnames(Hmat[[ds]]) <- rownames(kernel.list[[ds]])
     }
