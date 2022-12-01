@@ -11,7 +11,7 @@ JOINTLYsolve(
   cpca.result,
   init = "clustering",
   k = 15,
-  m = 5,
+  m = 2,
   iter.max = 100,
   alpha = 10,
   mu = 10,
@@ -35,7 +35,7 @@ JOINTLYsolve(
 
 \item{k}{The number of factors to calculate [default = 15]}
 
-\item{m}{The fuzzy parameter of for cluster initialization [default = 5]}
+\item{m}{The fuzzy parameter of for cluster initialization [default = 2]}
 
 \item{iter.max}{The maximum number of iterations to perform [default = 100]}
 
