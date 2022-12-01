@@ -8,7 +8,7 @@
 #' @param cpca.result The results from CPCA analysis. See \link{cpca}
 #' @param init The name of the method to use for initialization ("random" or "clustering"). [default = "clustering"]
 #' @param k The number of factors to calculate [default = 15]
-#' @param m The fuzzy parameter of for cluster initialization [default = 4.5]
+#' @param m The fuzzy parameter of for cluster initialization [default = 2]
 #' @param iter.max The maximum number of iterations to perform [default = 100]
 #' @param alpha Alpha parameter of the loss function [default = 10]
 #' @param mu Mu parameter of the loss function [default = 10]
@@ -24,7 +24,7 @@
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", k = 15, m = 4.5, iter.max = 100, alpha = 10, mu = 10, lambda = 5, beta = 10, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", k = 15, m = 2, iter.max = 100, alpha = 10, mu = 10, lambda = 5, beta = 10, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
   ## Convert to dense matrices
   norm.list <- list()
   for (ds in 1:length(kernel.list)) { 
@@ -48,7 +48,6 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   } else if (init == "clustering") {
     Hmat <- list()
     for (ds in 1:length(kernel.list)) {
-      #set.seed(42)
       Hmat[[ds]] <- t(e1071::cmeans(cpca.result$cpca[[ds]], center = k, m = m)$membership)
       colnames(Hmat[[ds]]) <- rownames(kernel.list[[ds]])
     }
