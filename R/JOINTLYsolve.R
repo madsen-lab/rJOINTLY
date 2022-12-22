@@ -24,13 +24,30 @@
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", k = 15, m = 2, iter.max = 100, alpha = 10, mu = 10, lambda = 5, beta = 10, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = FALSE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 100, alpha = 10, mu = 10, lambda = 5, beta = 10, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
   ## Convert to dense matrices
   norm.list <- list()
   for (ds in 1:length(kernel.list)) { 
     kernel.list[[ds]] <- as.matrix(kernel.list[[ds]]) 
     snn.list[[ds]] <- as.matrix(snn.list[[ds]]) 
     norm.list[[ds]] <- as.matrix(cpca.result$normalized[[ds]]) 
+  }
+  
+  ## Scale the normalized matrix if requested
+  if (norm.scale) {
+    for (ds in 1:length(kernel.list)) { 
+      norm.list[[ds]] <- t(scale(t(norm.list[[ds]]), center = norm.center))
+      if (norm.center) {
+        norm.list[[ds]] <- norm.list[[ds]] - apply(norm.list[[ds]],1,FUN="min")
+      }
+    }
+  }
+  
+  ## Min-max the normalized matrix if requested
+  if  (norm.minmax) {
+    for (ds in 1:length(kernel.list)) { 
+      norm.list[[ds]] <- (norm.list[[ds]] - apply(norm.list[[ds]],1,FUN="min")) / (apply(norm.list[[ds]],1,FUN="max") - apply(norm.list[[ds]],1,FUN="min"))
+    }
   }
   
   ## Initialize matrices
@@ -49,6 +66,20 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
     Hmat <- list()
     for (ds in 1:length(kernel.list)) {
       Hmat[[ds]] <- t(e1071::cmeans(cpca.result$cpca[[ds]], center = k, m = m)$membership)
+      colnames(Hmat[[ds]]) <- rownames(kernel.list[[ds]])
+    }
+    Fmat <- list()
+    for (ds in 1:length(kernel.list)) {
+      linear <- lm.fit(y = t(kernel.list[[ds]]), x = t(Hmat[[ds]]))
+      coefs <- coef(linear)
+      coefs[coefs < 0] <- 0
+      coefs[is.na(coefs)] <- 0
+      Fmat[[ds]] <- t(coefs)
+    }
+  } else if (init == "pca") {
+    Hmat <- list()
+    for (ds in 1:length(kernel.list)) {
+      Hmat[[ds]] <- t(cpca.result$cpca[[ds]][,1:k] - min(cpca.result$cpca[[ds]][,1:k]))
       colnames(Hmat[[ds]]) <- rownames(kernel.list[[ds]])
     }
     Fmat <- list()
@@ -168,6 +199,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   names(Wmat) <- names(kernel.list)
   
   # Scale and combine Hmatrices
+  Hmat.raw <- Hmat
   for (i in 1:length(Hmat)) {
     Hmat[[i]] <- t(scale(t(Hmat[[i]])))
     rownames(Hmat[[i]]) <- paste("JOINTLY_", seq(1, k, 1), sep = "")
@@ -175,5 +207,5 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   res <- t(do.call("cbind", Hmat))
   
   # Return
-  return(list(Hmat.scaled = res, Hmat = Hmat, Fmat = Fmat, Wmat = Wmat))
+  return(list(Hmat.scaled = res, Hmat = Hmat.raw, Fmat = Fmat, Wmat = Wmat))
 }
