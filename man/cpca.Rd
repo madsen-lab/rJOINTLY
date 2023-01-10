@@ -6,11 +6,15 @@
 \usage{
 cpca(
   dataset.list,
+  weight_by_var = TRUE,
+  pca.type = "cpca",
   nfeat = 1000,
   selection.method = "deviance",
   threshold = 0.8,
   kc = 20,
   ki = 20,
+  do.center = FALSE,
+  feat.type = "inclusive",
   oversampling = 10,
   ncpu = 1,
   iter.max = 100,
@@ -22,6 +26,10 @@ cpca(
 \arguments{
 \item{dataset.list}{A list (per batch) of raw counts}
 
+\item{weight_by_var}{Boolean (TRUE or FALSE) indicating whether or not to weight embeddings by the variance of each PC [default = TRUE]}
+
+\item{pca.type}{The method (either 'cpca' or 'irlba') for computing PCs [default = "cpca"]}
+
 \item{nfeat}{The number of features to select [default = 1000]}
 
 \item{selection.method}{The method to use selecting highly-variable features [default = "deviance"]}
@@ -31,6 +39,10 @@ cpca(
 \item{kc}{The number of common PCs to calculate [default = 20]}
 
 \item{ki}{The number of invididual PCs to calcuate [default = 20]}
+
+\item{do.center}{Boolean indicating whether or not to center expression values prior to decomposition [default = FALSE]}
+
+\item{feat.type}{The method (either 'inclusive' or 'exclusive') for selecting variable feature [default = "inclusive"]}
 
 \item{oversampling}{The number of PCs to calculate in excess the selected PCs [default = 10]}
 

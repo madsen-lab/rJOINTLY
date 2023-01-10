@@ -9,11 +9,11 @@
 #' @param init The name of the method to use for initialization ("random" or "clustering"). [default = "clustering"]
 #' @param k The number of factors to calculate [default = 15]
 #' @param m The fuzzy parameter of for cluster initialization [default = 2]
-#' @param iter.max The maximum number of iterations to perform [default = 100]
-#' @param alpha Alpha parameter of the loss function [default = 10]
-#' @param mu Mu parameter of the loss function [default = 10]
-#' @param lambda Lambda parameter of the loss function [default = 5]
-#' @param beta Beta parameter of the loss function [default = 10]
+#' @param iter.max The maximum number of iterations to perform [default = 200]
+#' @param alpha Alpha parameter of the loss function [default = 1]
+#' @param mu Mu parameter of the loss function [default = 20]
+#' @param lambda Lambda parameter of the loss function [default = 1]
+#' @param beta Beta parameter of the loss function [default = 5]
 #' @param progressbar A logical indicating whether or not to print a progress bar [default = TRUE]
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param bpparam The name of the type of BPPARAM object to use for sequential or parallel processing [defult = SerialParam()]
@@ -24,7 +24,7 @@
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = FALSE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 100, alpha = 10, mu = 10, lambda = 5, beta = 10, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = FALSE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
   ## Convert to dense matrices
   norm.list <- list()
   for (ds in 1:length(kernel.list)) { 

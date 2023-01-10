@@ -10,13 +10,16 @@ JOINTLYsolve(
   rare.list,
   cpca.result,
   init = "clustering",
+  norm.scale = FALSE,
+  norm.minmax = FALSE,
+  norm.center = FALSE,
   k = 15,
   m = 2,
-  iter.max = 100,
-  alpha = 10,
-  mu = 10,
-  lambda = 5,
-  beta = 10,
+  iter.max = 200,
+  alpha = 1,
+  mu = 20,
+  lambda = 1,
+  beta = 5,
   progressbar = TRUE,
   ncpu = 1,
   bpparam = SerialParam()
@@ -37,15 +40,15 @@ JOINTLYsolve(
 
 \item{m}{The fuzzy parameter of for cluster initialization [default = 2]}
 
-\item{iter.max}{The maximum number of iterations to perform [default = 100]}
+\item{iter.max}{The maximum number of iterations to perform [default = 200]}
 
-\item{alpha}{Alpha parameter of the loss function [default = 10]}
+\item{alpha}{Alpha parameter of the loss function [default = 1]}
 
-\item{mu}{Mu parameter of the loss function [default = 10]}
+\item{mu}{Mu parameter of the loss function [default = 20]}
 
-\item{lambda}{Lambda parameter of the loss function [default = 5]}
+\item{lambda}{Lambda parameter of the loss function [default = 1]}
 
-\item{beta}{Beta parameter of the loss function [default = 10]}
+\item{beta}{Beta parameter of the loss function [default = 5]}
 
 \item{progressbar}{A logical indicating whether or not to print a progress bar [default = TRUE]}
 

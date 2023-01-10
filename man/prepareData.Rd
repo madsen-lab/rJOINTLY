@@ -6,31 +6,31 @@
 \usage{
 prepareData(
   dataset.list,
-  k.decay = 10,
+  k.decay = 5,
   k.rare = 20,
-  k.snn = 100,
-  alpha = 2,
+  k.snn = 30,
+  alpha = 5,
   threshold = 1e-04,
   prune = 1/15,
-  rare = TRUE
+  rare = FALSE
 )
 }
 \arguments{
 \item{dataset.list}{A list (per batch) of CPCAs. See \link{cpca}}
 
-\item{k.decay}{The number of neighbors to use for the decay function [default = 10]}
+\item{k.decay}{The number of neighbors to use for the decay function [default = 5]}
 
 \item{k.rare}{The index of the nearest neighbor to use for rare scoring [default = 20]}
 
-\item{k.snn}{The number of neighbors to use for the SNN calculations [default = 100]}
+\item{k.snn}{The number of neighbors to use for the SNN calculations [default = 30]}
 
-\item{alpha}{The power of the decay function [default = 2]}
+\item{alpha}{The power of the decay function [default = 5]}
 
 \item{threshold}{Threshold the minimum similarity between cells [default = 1e-4]}
 
 \item{prune}{The minimum number of normalized neighbors between cells to retain the eddge [default = 1/15]}
 
-\item{rare}{A boolean (TRUE or FALSE) indicating if rare cell index should be calculated from the distance to the Kth neighbour [default = TRUE]}
+\item{rare}{A boolean (TRUE or FALSE) indicating if rare cell index should be calculated from the distance to the Kth neighbour [default = FALSE]}
 }
 \value{
 List (per-batch) of alpha decay kernels.
