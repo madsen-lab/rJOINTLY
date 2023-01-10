@@ -12,17 +12,16 @@ jointly(
   init = "clustering",
   bpparam = SerialParam(),
   selection.method = "deviance",
-  decay.k = 10,
-  decay.alpha = 2,
+  decay.k = 5,
+  decay.alpha = 5,
   cpca.threshold = 0.8,
   cpca.kc = 20,
   cpca.ki = 20,
-  alpha.loss = 10,
-  mu.loss = 10,
-  lambda.loss = 5,
-  beta.loss = 10,
-  snn.k = 100,
-  rare.k = 20,
+  alpha.loss = 1,
+  mu.loss = 20,
+  lambda.loss = 1,
+  beta.loss = 5,
+  snn.k = 30,
   ncpu = 1,
   iter.max = 100,
   verbose = TRUE,
@@ -44,9 +43,9 @@ jointly(
 
 \item{selection.method}{The method to use selecting highly-variable features [default = "deviance"]}
 
-\item{decay.k}{The number of neighbors to use for the decay function [default = 10]}
+\item{decay.k}{The number of neighbors to use for the decay function [default = 5]}
 
-\item{decay.alpha}{The power of the decay function [default = 2]}
+\item{decay.alpha}{The power of the decay function [default = 5]}
 
 \item{cpca.threshold}{The minimum amount of variance to be explained by common PCs before adding individual PCs [default = 0.8]}
 
@@ -54,17 +53,15 @@ jointly(
 
 \item{cpca.ki}{The number of invididual PCs to calcuate [default = 20]}
 
-\item{alpha.loss}{Alpha parameter of the loss function [default = 10]}
+\item{alpha.loss}{Alpha parameter of the loss function [default = 1]}
 
-\item{mu.loss}{Mu parameter of the loss function [default = 10]}
+\item{mu.loss}{Mu parameter of the loss function [default = 20]}
 
-\item{lambda.loss}{Lambda parameter of the loss function [default = 5]}
+\item{lambda.loss}{Lambda parameter of the loss function [default = 1]}
 
-\item{beta.loss}{Beta parameter of the loss function [default = 10]}
+\item{beta.loss}{Beta parameter of the loss function [default = 5]}
 
-\item{snn.k}{The number of neighbors to use for building the SNN graph [default = 100]}
-
-\item{rare.k}{The number of neighbors to calculate rareity scores [default = 20]}
+\item{snn.k}{The number of neighbors to use for building the SNN graph [default = 30]}
 
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
 

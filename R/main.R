@@ -9,17 +9,16 @@
 #' @param init The method for initializing the H and F matrices ("random" or "clustering"). [default = "clustering"]
 #' @param bpparam The *Param backend to use for sequential or parallel processing. [default = SerialParam()]
 #' @param selection.method The method to use selecting highly-variable features [default = "deviance"]
-#' @param decay.k The number of neighbors to use for the decay function [default = 10]
-#' @param decay.alpha The power of the decay function [default = 2] 
+#' @param decay.k The number of neighbors to use for the decay function [default = 5]
+#' @param decay.alpha The power of the decay function [default = 5] 
 #' @param cpca.threshold The minimum amount of variance to be explained by common PCs before adding individual PCs [default = 0.8]
 #' @param cpca.kc The number of common PCs to calculate [default = 20]
 #' @param cpca.ki The number of invididual PCs to calcuate [default = 20]
-#' @param alpha.loss Alpha parameter of the loss function [default = 10]
-#' @param mu.loss Mu parameter of the loss function [default = 10]
-#' @param lambda.loss Lambda parameter of the loss function [default = 5]
-#' @param beta.loss Beta parameter of the loss function [default = 10]
-#' @param snn.k The number of neighbors to use for building the SNN graph [default = 100]
-#' @param rare.k The number of neighbors to calculate rareity scores [default = 20]
+#' @param alpha.loss Alpha parameter of the loss function [default = 1]
+#' @param mu.loss Mu parameter of the loss function [default = 20]
+#' @param lambda.loss Lambda parameter of the loss function [default = 1]
+#' @param beta.loss Beta parameter of the loss function [default = 5]
+#' @param snn.k The number of neighbors to use for building the SNN graph [default = 30]
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param iter.max The maximum number of iterations to perform [default = 100]
 #' @param verbose Boolean (TRUE or FALSE) determining verbosity [default = TRUE]
@@ -34,7 +33,7 @@
 #' @useDynLib JOINTLY
 #'
 
-jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "clustering", bpparam = SerialParam(), selection.method = "deviance", decay.k = 10, decay.alpha = 2, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 10, mu.loss = 10, lambda.loss = 5, beta.loss = 10, snn.k = 100, rare.k = 20, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
+jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "clustering", bpparam = SerialParam(), selection.method = "deviance", decay.k = 5, decay.alpha = 5, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 1, mu.loss = 20, lambda.loss = 1, beta.loss = 5, snn.k = 30, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
   # TODO: Check for duplicated barcode names
   # TODO: Check for missing names for datatsets already provided as a list
@@ -51,7 +50,7 @@ jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "
   
   # prepareData
   if (verbose) { message("Computing decay kernels, SNN graphs and rareity scores.")}
-  inputs <- R.utils::doCall(JOINTLY::prepareData, args = ..., alwaysArgs = list(dataset.list = cpca.list, k.decay = decay.k, alpha = decay.alpha, k.rare = rare.k, k.snn = snn.k))
+  inputs <- R.utils::doCall(JOINTLY::prepareData, args = ..., alwaysArgs = list(dataset.list = cpca.list, k.decay = decay.k, alpha = decay.alpha, k.snn = snn.k))
   kernel.list <- inputs$kernels
   snn.list <- inputs$snn
   rare.list <- inputs$rareity

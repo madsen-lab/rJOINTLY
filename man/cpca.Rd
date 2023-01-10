@@ -13,7 +13,7 @@ cpca(
   threshold = 0.8,
   kc = 20,
   ki = 20,
-  do.center = FALSE,
+  do.center = TRUE,
   feat.type = "inclusive",
   oversampling = 10,
   ncpu = 1,
@@ -40,7 +40,7 @@ cpca(
 
 \item{ki}{The number of invididual PCs to calcuate [default = 20]}
 
-\item{do.center}{Boolean indicating whether or not to center expression values prior to decomposition [default = FALSE]}
+\item{do.center}{Boolean indicating whether or not to center expression values prior to decomposition [default = TRUE]}
 
 \item{feat.type}{The method (either 'inclusive' or 'exclusive') for selecting variable feature [default = "inclusive"]}
 

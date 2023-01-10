@@ -10,7 +10,7 @@
 #' @param threshold The minimum amount of variance to be explained by common PCs before adding individual PCs [default = 0.8]
 #' @param kc The number of common PCs to calculate [default = 20]
 #' @param ki The number of invididual PCs to calcuate [default = 20]
-#' @param do.center Boolean indicating whether or not to center expression values prior to decomposition [default = FALSE]
+#' @param do.center Boolean indicating whether or not to center expression values prior to decomposition [default = TRUE]
 #' @param feat.type The method (either 'inclusive' or 'exclusive') for selecting variable feature [default = "inclusive"]
 #' @param oversampling The number of PCs to calculate in excess the selected PCs [default = 10]
 #' @param ncpu The number of cpus to use for matrix multiplications [default = 1]
@@ -27,7 +27,7 @@
 #' @import irlba
 
 cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 1000, selection.method = "deviance", 
-                 threshold = 0.8, kc = 20, ki = 20, do.center = FALSE, feat.type = "inclusive", oversampling = 10, ncpu = 1, 
+                 threshold = 0.8, kc = 20, ki = 20, do.center = TRUE, feat.type = "inclusive", oversampling = 10, ncpu = 1, 
                  iter.max = 100, tol = 1e-05, eps = .Machine$double.eps^(4/5), 
                  verbose = TRUE) 
 {

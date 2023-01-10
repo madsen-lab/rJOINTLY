@@ -200,11 +200,9 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   
   # Scale and combine Hmatrices
   Hmat.raw <- Hmat
-  for (i in 1:length(Hmat)) {
-    Hmat[[i]] <- t(scale(t(Hmat[[i]])))
-    rownames(Hmat[[i]]) <- paste("JOINTLY_", seq(1, k, 1), sep = "")
-  }
   res <- t(do.call("cbind", Hmat))
+  res <- scale(res)
+  res <- t(scale(t(res)))
   
   # Return
   return(list(Hmat.scaled = res, Hmat = Hmat.raw, Fmat = Fmat, Wmat = Wmat))
