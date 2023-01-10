@@ -203,6 +203,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   res <- t(do.call("cbind", Hmat))
   res <- scale(res)
   res <- t(scale(t(res)))
+  colnames(res) <- paste("jointly_", 1:ncol(res), sep="")
   
   # Return
   return(list(Hmat.scaled = res, Hmat = Hmat.raw, Fmat = Fmat, Wmat = Wmat))
