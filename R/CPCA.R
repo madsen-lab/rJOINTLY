@@ -180,7 +180,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     
     
     if (length(ds.individual) > 0) {
-      if (verbose) { message(paste("\tProcessing ", length(ds.individual), " batches with excess variance.\n", sep=""))}
+      if (verbose) { message(paste("\tProcessing ", length(ds.individual), " batches with excess variance.", sep=""))}
       SV.list <- list()
       counter <- 1
       for (ds in ds.individual) {
@@ -240,7 +240,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
       names(C.list)[ds] <- names(dataset.list)[ds]
     }
   } else {
-    if (verbose) { message("\tRunning per-batch SVD.\n")}
+    if (verbose) { message("\tRunning per-batch SVD.")}
     C.list <- list()
     scale.data <- do.call("rbind", scale.list)
     svd <- irlba::irlba(scale.data, nv = kc)
@@ -254,5 +254,6 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
       C.list[[ds]] <- embed[ rownames(embed) %in% rownames(scale.list[[ds]]),]
     }
   }
+  if (verbose) { message("\n")}
   return(list(cpca = C.list, normalized = norm.list, features = sel.features))
 }

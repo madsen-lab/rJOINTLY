@@ -13,7 +13,7 @@
 
 preprocess = function(data, batch.var = NULL, verbose = TRUE) {
   ## Split data into a list
-  if (verbose) { message("Preprocessing dataset.\n")}
+  if (verbose) { message("Preprocessing dataset.")}
   count.list <- list()
   if (!is.null(batch.var)) {
     # TODO: Check if batch variable exists, otherwise break
@@ -55,5 +55,6 @@ preprocess = function(data, batch.var = NULL, verbose = TRUE) {
   }
 
   ## Return
+  if (verbose) { message("\n")}
   return(count.list)
 }
