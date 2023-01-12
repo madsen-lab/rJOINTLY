@@ -31,6 +31,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
                  iter.max = 100, tol = 1e-05, eps = .Machine$double.eps^(4/5), 
                  verbose = TRUE) 
 {
+  if (verbose) { message("Performing feature selection.")}
   if (selection.method == "deviance") {
     features <- as.data.frame(scry::devianceFeatureSelection(dataset.list[[1]]))
     colnames(features)[1] <- "Dataset1"
@@ -84,6 +85,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   }
   if (length(sel.features) == 0) {
   }
+  if (verbose) { message("Normalizing and scaling counts.")}
   norm.list <- list()
   for (ds in 1:length(dataset.list)) {
     x <- dataset.list[[ds]]
@@ -102,6 +104,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   }
   
   if (pca.type == "cpca") {
+    if (verbose) { message("Calculating variance-covariance matrix.")}
     V.list <- future_lapply(scale.list, future.seed = TRUE, FUN = function(x) {
       return(JOINTLY:::matDiMult(Matrix::t(x), x, n_cores = ncpu)/(nrow(x) - 1))
     })
@@ -114,6 +117,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     n <- min(nrow(V), k + oversampling)
     Q <- matrix(rnorm(nrow(V) * n), nrow(V))
     d <- rep(0, k)
+    if (verbose) { message("Running consensus PCA.")}
     for (iter in 1:iter.max) {
       Q <- qr.Q(qr(JOINTLY:::matDiMult(V, Q, n_cores = ncpu)))
       B <- JOINTLY:::matDiMult(t(V), Q, n_cores = ncpu)
@@ -134,7 +138,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     sc$d <- sc$d[1:k]
     sc$v <- sc$v[, 1:k]
     sc$mprod <- 2 * iter + 1
-    
+    if (verbose) { message("Calculating explained variance.")}
     VScale <- list()
     for (ds in 1:length(scale.list)) {
       VScale[[ds]] <- list(ds = ds, V = V.list[[ds]], S = scale.list[[ds]])
@@ -170,6 +174,8 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     })
     var.explain <- as.data.frame(do.call("rbind",var.explain))
     ds.individual <- var.explain[var.explain[, 2]/var.explain[, 3] < threshold, 1]
+    if (verbose) { message("Processing samples with excess variance.")}
+    
     if (length(ds.individual) > 0) {
       SV.list <- list()
       counter <- 1
