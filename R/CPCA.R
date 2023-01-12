@@ -110,7 +110,6 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     V.list <- bplapply(scale.list, BPPARAM = bpparam, FUN = function(x) {
       return(JOINTLY:::matDiMult(Matrix::t(x), x, n_cores = ncpu)/(nrow(x) - 1))
     })
-    V.list <- value(V.list)
     V <- matrix(nrow = dim(V.list[[1]])[1], ncol = dim(V.list[[1]])[1], 0)
     sums <- sum(unlist(lapply(scale.list, FUN = "nrow")))
     for (ds in 1:length(scale.list)) {
