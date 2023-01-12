@@ -18,17 +18,18 @@
 #' @param lambda Lambda parameter of the loss function [default = 1]
 #' @param beta Beta parameter of the loss function [default = 5]
 #' @param progressbar A logical indicating whether or not to print a progress bar [default = TRUE]
-#' @param share Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]
+#' @param share.objects Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
-#' @param bpparam The name of the type of BPPARAM object to use for sequential or parallel processing [defult = SerialParam()]
+#' @param save_all Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]
 #'
 #' @return A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
-#' @import BiocParallel
+#' @import future
+#' @import future.apply
 #' @import e1071
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share = TRUE, ncpu = 1, bpparam = SerialParam()) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE) {
   ## Convert to dense matrices
   norm.list <- list()
   for (ds in 1:length(kernel.list)) { 
@@ -110,76 +111,100 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
     Wmat[[ds]] <- t(coefs)
   }
   
-  ## Share objects
-  if (share) {
-    kernel.shared <- share(kernel.list)
-    norm.shared <- share(norm.list)
-    snn.shared <- share(snn.list)
-    DA.shared <- share(DAmat)
-  } else {
-    kernel.shared <- kernel.list
-    norm.shared <- norm.list
-    snn.shared <- snn.list
-    DA.shared <- DAmat
+  ## Combine into one list
+  data.list <- list()
+  for (ds in 1:length(kernel.list)) {
+    data.list[[ds]] <- list(ds = ds, kernel = kernel.list[[ds]], norm = norm.list[[ds]], rare = rare.list[[ds]], Hmat = Hmat[[ds]], Fmat = Fmat[[ds]], snn = snn.list[[ds]], Vmat = Vmat[[ds]], DAmat = DAmat[[ds]])
   }
+  n_ds <- length(data.list)
+  list_names <- names(kernel.list)
+  
+  ## Remove surplus objects from memory
   kernel.list <- NULL
   norm.list <- NULL
   snn.list <- NULL
   DAmat <- NULL
+  Hmat <- NULL
+  Fmat <- NULL
+  Vmat <- NULL
+  rare.list <- NULL
+  
+  ## Share objects
+  if (share.objects) {
+    data.list <- share(data.list, copyOnWrite = FALSE)
+  }
   times <- c()
+  
+  ## Save all objects
+  if (save_all) {
+    Hmat.list <- list()
+    Fmat.list <- list()
+    Wmat.list <- list()
+    Hmat.list[[1]] <- t(do.call("cbind", lapply(data.list, FUN = function(x) { x$Hmat } )))
+    Fmat.list[[1]] <- do.call("rbind", lapply(data.list, FUN = function(x) { x$Fmat } ))
+    Wmat.list[[1]] <- Wmat
+  }
   
   ## Solve
   for (iter in 1:iter.max) {
     # Solve new H matrices
     start <- Sys.time()
-    iter.result <- bpmapply(function(ds) {
+    iter.result <- future_lapply(data.list, future.seed = TRUE, FUN = function(x) {
       ## Define indices of other samples
-      js <- seq(1, length(kernel.shared),1)
+      ds <- x$ds
+      js <- seq(1, n_ds,1)
       js <- js[-ds]
       
       ## Update H matrix
       # Numerators
-      numerator1 <- t(t(matDiMult(t(Fmat[[ds]]), kernel.shared[[ds]], ncpu)) * (rare.list[[ds]] * alpha))
-      numerator2 <- 2 * mu * Hmat[[ds]]
-      numerator3 <- lambda * matDiMult(Hmat[[ds]], snn.shared[[ds]], ncpu)
-      numerator4 <- matrix(nrow = k, ncol = ncol(Hmat[[ds]]), 0)
+      numerator1 <- t(t(JOINTLY:::matDiMult(t(x$Fmat), x$kernel, ncpu)) * (x$rare * alpha))
+      numerator2 <- 2 * mu * x$Hmat
+      numerator3 <- lambda * JOINTLY:::matDiMult(x$Hmat, x$snn, ncpu)
+      numerator4 <- matrix(nrow = k, ncol = ncol(x$Hmat), 0)
       for (js.idx in js) {
-        numerator4 <- numerator4 + ((beta * matDiMult(t(Wmat[[js.idx]]), norm.shared[[ds]], ncpu)))  + ((beta * matTriMult(t(Wmat[[ds]]), Wmat[[ds]], Hmat[[ds]], ncpu)))
+        numerator4 <- numerator4 + ((beta * JOINTLY:::matDiMult(t(Wmat[[js.idx]]), x$norm, ncpu)))  + ((beta * JOINTLY:::matTriMult(t(Wmat[[ds]]), Wmat[[ds]], x$Hmat, ncpu)))
       }
       
       # Denominators
-      denom1 = t(t(matQuadMult(t(Fmat[[ds]]), kernel.shared[[ds]], Fmat[[ds]], Hmat[[ds]], ncpu)) * (rare.list[[ds]] * alpha))
-      denom1 = denom1 + 2 * mu * matTriMult(Hmat[[ds]], t(Hmat[[ds]]), Hmat[[ds]], ncpu)
-      denom1 = denom1 + lambda * matDiMult(Hmat[[ds]], DA.shared[[ds]], ncpu)
-      denom2 = matrix(nrow = k, ncol = ncol(Hmat[[ds]]), 0)
+      denom1 = t(t(JOINTLY:::matQuadMult(t(x$Fmat), x$kernel, x$Fmat, x$Hmat, ncpu)) * (x$rare * alpha))
+      denom1 = denom1 + 2 * mu * JOINTLY:::matTriMult(x$Hmat, t(x$Hmat), x$Hmat, ncpu)
+      denom1 = denom1 + lambda * JOINTLY:::matDiMult(x$Hmat, x$DAmat, ncpu)
+      denom2 = matrix(nrow = k, ncol = ncol(x$Hmat), 0)
       for (js.idx in js) {
-        denom2 = denom2 + (beta * matTriMult(t(Wmat[[js.idx]]), Wmat[[js.idx]], Hmat[[ds]], ncpu))
-        denom2 = denom2 + (2 * beta * matTriMult(t(Wmat[[ds]]), Wmat[[js.idx]], Hmat[[ds]], ncpu))
-        denom2 = denom2 + (beta * matDiMult(t(Wmat[[ds]]),norm.shared[[ds]], ncpu))
+        denom2 = denom2 + (beta * JOINTLY:::matTriMult(t(Wmat[[js.idx]]), Wmat[[js.idx]], x$Hmat, ncpu))
+        denom2 = denom2 + (2 * beta * JOINTLY:::matTriMult(t(Wmat[[ds]]), Wmat[[js.idx]], x$Hmat, ncpu))
+        denom2 = denom2 + (beta * JOINTLY:::matDiMult(t(Wmat[[ds]]),x$norm, ncpu))
       }
       
       # Final estimate of Hmat
-      H_new <- Hmat[[ds]] * ((numerator1 + numerator2 + numerator3 + numerator4) / (denom1 + denom2))
+      H_new <- x$Hmat * ((numerator1 + numerator2 + numerator3 + numerator4) / (denom1 + denom2))
       
       # Update F matrix
-      F_new <- Fmat[[ds]] * (matDiMult(kernel.shared[[ds]], t(H_new), ncpu) / matQuadMult(kernel.shared[[ds]], Fmat[[ds]], H_new, t(H_new), ncpu))
+      F_new <- x$Fmat * (JOINTLY:::matDiMult(x$kernel, t(H_new), ncpu) / JOINTLY:::matQuadMult(x$kernel, x$Fmat, H_new, t(H_new), ncpu))
       
       # Update W matrix
-      linear <- lm.fit(y = t(norm.shared[[ds]]), x = t(H_new))
+      linear <- lm.fit(y = t(x$norm), x = t(H_new))
       coefs <- coef(linear)
       coefs[ coefs < 0 ] <- 0
       coefs[ is.na(coefs) ] <- 0
       W_new <- t(coefs)
       
       # Return
-      return(list(Hnew = H_new, Fnew = F_new, Wnew = W_new))
-    },1:length(kernel.shared), SIMPLIFY = FALSE, BPPARAM = bpparam)
+      return(list(ds = ds, Hmat = H_new, Fmat = F_new, Wmat = W_new))
+    })
     
     # Insert new matrices
-    for (ds in 1:length(kernel.shared)) {
-      Hmat[[ds]] <- iter.result[[ds]]$Hnew
-      Fmat[[ds]] <- iter.result[[ds]]$Fnew
-      Wmat[[ds]] <- iter.result[[ds]]$Wnew
+    for (ds in 1:length(data.list)) {
+      data.list[[iter.result[[ds]]$ds]]$Hmat <- iter.result[[ds]]$Hmat
+      data.list[[iter.result[[ds]]$ds]]$Fmat <- iter.result[[ds]]$Fmat
+      Wmat[[iter.result[[ds]]$ds]] <- iter.result[[ds]]$Wmat
+    }
+    
+    ## Save all objects
+    if (save_all) {
+      Hmat.list[[iter+1]] <- t(do.call("cbind", lapply(data.list, FUN = function(x) { x$Hmat } )))
+      Fmat.list[[iter+1]] <- do.call("rbind", lapply(data.list, FUN = function(x) { x$Fmat } ))
+      Wmat.list[[1]] <- Wmat
     }
     
     # Calculate approximate remaining time
@@ -208,18 +233,26 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
     }
   }
   
-  # Set names
-  names(Hmat) <- names(kernel.shared)
-  names(Fmat) <- names(kernel.shared)
-  names(Wmat) <- names(kernel.shared)
-  
-  # Scale and combine Hmatrices
-  Hmat.raw <- Hmat
-  res <- t(do.call("cbind", Hmat))
+  # Extract final matrices
+  Hmat.raw <- lapply(data.list, FUN = function(x) { x$Hmat })
+  Fmat.raw <- lapply(data.list, FUN = function(x) { x$Fmat })
+  names(Hmat.raw) <- list_names
+  names(Fmat.raw) <- list_names
+  names(Wmat) <- list_names
+
+  # Scale  
+  res <- t(do.call("cbind", Hmat.raw))
   res <- scale(res)
   res <- t(scale(t(res)))
   colnames(res) <- paste("jointly_", 1:ncol(res), sep="")
   
+  # Create output
+  if (save_all) {
+    output <- list(Hmat.scaled = res, Hmat = Hmat.raw, Fmat = Fmat.raw, Wmat = Wmat, allH = Hmat.list, allF = Fmat.list, allW = Wmat.list)
+  } else {
+    output <- list(Hmat.scaled = res, Hmat = Hmat.raw, Fmat = Fmat.raw, Wmat = Wmat)
+  }
+  
   # Return
-  return(list(Hmat.scaled = res, Hmat = Hmat.raw, Fmat = Fmat, Wmat = Wmat))
+  return(output)
 }

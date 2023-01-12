@@ -39,8 +39,6 @@ jointly(
 
 \item{init}{The method for initializing the H and F matrices ("random" or "clustering"). [default = "clustering"]}
 
-\item{bpparam}{The *Param backend to use for sequential or parallel processing. [default = SerialParam()]}
-
 \item{selection.method}{The method to use selecting highly-variable features [default = "deviance"]}
 
 \item{decay.k}{The number of neighbors to use for the decay function [default = 5]}

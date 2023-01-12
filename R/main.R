@@ -7,7 +7,6 @@
 #' @param factors The number of factors to calculate [default = 15]
 #' @param nfeat The number of features to select [default = 1000]
 #' @param init The method for initializing the H and F matrices ("random" or "clustering"). [default = "clustering"]
-#' @param bpparam The *Param backend to use for sequential or parallel processing. [default = SerialParam()]
 #' @param selection.method The method to use selecting highly-variable features [default = "deviance"]
 #' @param decay.k The number of neighbors to use for the decay function [default = 5]
 #' @param decay.alpha The power of the decay function [default = 5] 
@@ -57,7 +56,7 @@ jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "
   
   # Solve
   if (verbose) { message("Solving matrices.")}
-  mat <- R.utils::doCall(JOINTLY::JOINTLYsolve, args = ..., alwaysArgs = list(kernel.list = kernel.list, snn.list = snn.list, rare.list = rare.list, cpca.result = cpca.res, k = factors, init = init, iter.max = iter.max, alpha = alpha.loss, mu = mu.loss, lambda = lambda.loss, beta = beta.loss, ncpu = ncpu, progressbar = verbose, bpparam = bpparam))
+  mat <- R.utils::doCall(JOINTLY::JOINTLYsolve, args = ..., alwaysArgs = list(kernel.list = kernel.list, snn.list = snn.list, rare.list = rare.list, cpca.result = cpca.res, k = factors, init = init, iter.max = iter.max, alpha = alpha.loss, mu = mu.loss, lambda = lambda.loss, beta = beta.loss, ncpu = ncpu, progressbar = verbose))
   
   ## Finalize results
   if (verbose) { message("Finalizing.")}

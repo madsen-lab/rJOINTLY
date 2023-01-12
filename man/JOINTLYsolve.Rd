@@ -21,9 +21,9 @@ JOINTLYsolve(
   lambda = 1,
   beta = 5,
   progressbar = TRUE,
-  share = TRUE,
+  share.objects = TRUE,
   ncpu = 1,
-  bpparam = SerialParam()
+  save_all = FALSE
 )
 }
 \arguments{
@@ -59,11 +59,11 @@ JOINTLYsolve(
 
 \item{progressbar}{A logical indicating whether or not to print a progress bar [default = TRUE]}
 
-\item{share}{Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]}
+\item{share.objects}{Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]}
 
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
 
-\item{bpparam}{The name of the type of BPPARAM object to use for sequential or parallel processing [defult = SerialParam()]}
+\item{save_all}{Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]}
 }
 \value{
 A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.

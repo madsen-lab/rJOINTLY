@@ -25,6 +25,8 @@
 #' @import SingleCellExperiment
 #' @import scry
 #' @import irlba
+#' @import future
+#' @import future.apply
 
 cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 1000, selection.method = "deviance", 
                  threshold = 0.8, kc = 20, ki = 20, do.center = TRUE, feat.type = "inclusive", oversampling = 10, ncpu = 1, 
@@ -138,21 +140,18 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     sc$d <- sc$d[1:k]
     sc$v <- sc$v[, 1:k]
     sc$mprod <- 2 * iter + 1
-    var.explain <- as.data.frame(matrix(ncol = kc, nrow = length(scale.list)))
+    VScale <- list()
     for (ds in 1:length(scale.list)) {
-      var.explain[ds, ] <- apply(t(t(sc$u) %*% t(scale.list[[ds]])), 
-                                 2, FUN = "var")/sum(apply(scale.list[[ds]], 2, FUN = "var"))
+      VScale[[ds]] <- list(ds = ds, V = V.list[[ds]], S = scale.list[[ds]])
     }
-    var.explain <- as.data.frame(matrix(ncol = 3, nrow = length(scale.list)))
-    for (ds in 1:length(scale.list)) {
+    var.explain <- future_lapply(VScale, future.seed = TRUE, FUN = function(x) {
       k <- kc
-      V <- V.list[[ds]]
-      n <- min(ncol(V), k + oversampling)
-      Q <- matrix(rnorm(ncol(V) * n), ncol(V))
+      n <- min(ncol(x$V), k + oversampling)
+      Q <- matrix(rnorm(ncol(x$V) * n), ncol(x$V))
       d <- rep(0, k)
       for (iter in 1:iter.max) {
-        Q <- qr.Q(qr(V %*% Q))
-        B <- crossprod(V, Q)
+        Q <- qr.Q(qr(x$V %*% Q))
+        B <- crossprod(x$V, Q)
         Q <- qr.Q(qr(B))
         d_new <- svd(B, nu = 0, nv = 0)$d[1:k]
         idx <- d_new > eps
@@ -162,20 +161,20 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
           break
         d <- d_new
       }
-      Q <- qr.Q(qr(V %*% Q))
-      B <- crossprod(Q, V)
+      Q <- qr.Q(qr(x$V %*% Q))
+      B <- crossprod(Q, x$V)
       s <- svd(B)
       s$u <- Q %*% s$u
       s$u <- s$u[, 1:k]
       s$d <- s$d[1:k]
       s$v <- s$v[, 1:k]
       s$mprod <- 2 * iter + 1
-      var.explain[ds, 1] <- ds
-      var.explain[ds, 2] <- sum(apply(t(t(sc$u) %*% t(scale.list[[ds]])), 
-                                      2, FUN = "var"))/sum(apply(scale.list[[ds]], 2, FUN = "var"))
-      var.explain[ds, 3] <- sum(apply(t(t(s$u) %*% t(scale.list[[ds]])), 
-                                      2, FUN = "var"))/sum(apply(scale.list[[ds]], 2, FUN = "var"))
-    }
+      return(c(x$ds, sum(apply(t(t(sc$u) %*% t(x$S)), 
+                               2, FUN = "var"))/sum(apply(x$S, 2, FUN = "var")), sum(apply(t(t(s$u) %*% t(x$S)), 
+                                                                                           2, FUN = "var"))/sum(apply(x$S, 2, FUN = "var"))))
+    })
+    var.explain <- as.data.frame(do.call("rbind",var.explain))
+    
     ds.individual <- var.explain[var.explain[, 2]/var.explain[, 
                                                               3] < threshold, 1]
     R.list <- structure(vector(mode = "list", length = length(ds.individual)), 
