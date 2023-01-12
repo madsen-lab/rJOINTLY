@@ -7,6 +7,9 @@
 #' @param rare.list A list (per-batch) of rare cell indices. See \link{computeSNN}
 #' @param cpca.result The results from CPCA analysis. See \link{cpca}
 #' @param init The name of the method to use for initialization ("random" or "clustering"). [default = "clustering"]
+#' @param norm.scale Boolean (TRUE or FALSE) indicating whether or not to scale the normalized counts [default = TRUE]
+#' @param norm.minmax Boolean (TRUE or FALSE) indicating whether or not to MinMax scale the normalized counts [default = FALSE]
+#' @param norm.center Boolean (TRUE or FALSE) indicating whether or not to center the normalized counts [default = FALSE]
 #' @param k The number of factors to calculate [default = 15]
 #' @param m The fuzzy parameter of for cluster initialization [default = 2]
 #' @param iter.max The maximum number of iterations to perform [default = 200]
@@ -15,6 +18,7 @@
 #' @param lambda Lambda parameter of the loss function [default = 1]
 #' @param beta Beta parameter of the loss function [default = 5]
 #' @param progressbar A logical indicating whether or not to print a progress bar [default = TRUE]
+#' @param share Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param bpparam The name of the type of BPPARAM object to use for sequential or parallel processing [defult = SerialParam()]
 #'
@@ -24,7 +28,7 @@
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = FALSE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, ncpu = 1, bpparam = SerialParam()) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share = TRUE, ncpu = 1, bpparam = SerialParam()) {
   ## Convert to dense matrices
   norm.list <- list()
   for (ds in 1:length(kernel.list)) { 
@@ -107,10 +111,21 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   }
   
   ## Share objects
-  kernel.shared <- share(kernel.list)
-  norm.shared <- share(norm.list)
-  snn.shared <- share(snn.list)
-  DA.shared <- share(DAmat)
+  if (share) {
+    kernel.shared <- share(kernel.list)
+    norm.shared <- share(norm.list)
+    snn.shared <- share(snn.list)
+    DA.shared <- share(DAmat)
+  } else {
+    kernel.shared <- kernel.list
+    norm.shared <- norm.list
+    snn.shared <- snn.list
+    DA.shared <- DAmat
+  }
+  kernel.list <- NULL
+  norm.list <- NULL
+  snn.list <- NULL
+  DAmat <- NULL
   times <- c()
   
   ## Solve
@@ -158,10 +173,10 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
       
       # Return
       return(list(Hnew = H_new, Fnew = F_new, Wnew = W_new))
-    },1:length(kernel.list), SIMPLIFY = FALSE, BPPARAM = bpparam)
+    },1:length(kernel.shared), SIMPLIFY = FALSE, BPPARAM = bpparam)
     
     # Insert new matrices
-    for (ds in 1:length(kernel.list)) {
+    for (ds in 1:length(kernel.shared)) {
       Hmat[[ds]] <- iter.result[[ds]]$Hnew
       Fmat[[ds]] <- iter.result[[ds]]$Fnew
       Wmat[[ds]] <- iter.result[[ds]]$Wnew
@@ -194,9 +209,9 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   }
   
   # Set names
-  names(Hmat) <- names(kernel.list)
-  names(Fmat) <- names(kernel.list)
-  names(Wmat) <- names(kernel.list)
+  names(Hmat) <- names(kernel.shared)
+  names(Fmat) <- names(kernel.shared)
+  names(Wmat) <- names(kernel.shared)
   
   # Scale and combine Hmatrices
   Hmat.raw <- Hmat

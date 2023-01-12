@@ -10,7 +10,7 @@ JOINTLYsolve(
   rare.list,
   cpca.result,
   init = "clustering",
-  norm.scale = FALSE,
+  norm.scale = TRUE,
   norm.minmax = FALSE,
   norm.center = FALSE,
   k = 15,
@@ -21,6 +21,7 @@ JOINTLYsolve(
   lambda = 1,
   beta = 5,
   progressbar = TRUE,
+  share = TRUE,
   ncpu = 1,
   bpparam = SerialParam()
 )
@@ -35,6 +36,12 @@ JOINTLYsolve(
 \item{cpca.result}{The results from CPCA analysis. See \link{cpca}}
 
 \item{init}{The name of the method to use for initialization ("random" or "clustering"). [default = "clustering"]}
+
+\item{norm.scale}{Boolean (TRUE or FALSE) indicating whether or not to scale the normalized counts [default = TRUE]}
+
+\item{norm.minmax}{Boolean (TRUE or FALSE) indicating whether or not to MinMax scale the normalized counts [default = FALSE]}
+
+\item{norm.center}{Boolean (TRUE or FALSE) indicating whether or not to center the normalized counts [default = FALSE]}
 
 \item{k}{The number of factors to calculate [default = 15]}
 
@@ -51,6 +58,8 @@ JOINTLYsolve(
 \item{beta}{Beta parameter of the loss function [default = 5]}
 
 \item{progressbar}{A logical indicating whether or not to print a progress bar [default = TRUE]}
+
+\item{share}{Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]}
 
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
 
