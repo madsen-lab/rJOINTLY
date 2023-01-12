@@ -105,9 +105,10 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   
   if (pca.type == "cpca") {
     if (verbose) { message("Calculating variance-covariance matrix.")}
-    V.list <- future_lapply(scale.list, future.seed = TRUE, FUN = function(x) {
+    V.list <- future({future_lapply(scale.list, future.seed = TRUE, FUN = function(x) {
       return(JOINTLY:::matDiMult(Matrix::t(x), x, n_cores = ncpu)/(nrow(x) - 1))
-    })
+    })})
+    V.list <- value(V.list)
     V <- matrix(nrow = dim(V.list[[1]])[1], ncol = dim(V.list[[1]])[1], 0)
     sums <- sum(unlist(lapply(scale.list, FUN = "nrow")))
     for (ds in 1:length(scale.list)) {
