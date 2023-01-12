@@ -23,7 +23,8 @@ JOINTLYsolve(
   progressbar = TRUE,
   share.objects = TRUE,
   ncpu = 1,
-  save_all = FALSE
+  save_all = FALSE,
+  bpparam = SerialParam()
 )
 }
 \arguments{
@@ -64,6 +65,8 @@ JOINTLYsolve(
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
 
 \item{save_all}{Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]}
+
+\item{bpparam}{*Param to use for parallel processing [default = SerialParam()]}
 }
 \value{
 A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.

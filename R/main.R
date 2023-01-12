@@ -21,6 +21,7 @@
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param iter.max The maximum number of iterations to perform [default = 100]
 #' @param verbose Boolean (TRUE or FALSE) determining verbosity [default = TRUE]
+#' @param bpparam *Param to use for parallel processing [default = SerialParam()]
 #' @param ... Additional parameters to pass to functions within JOINTLY
 #'
 #' @return A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
@@ -43,7 +44,7 @@ jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "
   
   # CPCA
   if (verbose) { message("Computing consensus PCA.")}
-  cpca.res <- R.utils::doCall(JOINTLY::cpca, args = ..., alwaysArgs = list(dataset.list = preprocessed, nfeat = nfeat, selection.method = selection.method, threshold = cpca.threshold, kc = cpca.kc, ki = cpca.ki, ncpu = ncpu, iter.max = iter.max, verbose = verbose))
+  cpca.res <- R.utils::doCall(JOINTLY::cpca, args = ..., alwaysArgs = list(bpparam = bpparam, dataset.list = preprocessed, nfeat = nfeat, selection.method = selection.method, threshold = cpca.threshold, kc = cpca.kc, ki = cpca.ki, ncpu = ncpu, iter.max = iter.max, verbose = verbose))
   norm.list <- cpca.res$normalized
   cpca.list <- cpca.res$cpca 
   
@@ -56,7 +57,7 @@ jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "
   
   # Solve
   if (verbose) { message("Solving matrices.")}
-  mat <- R.utils::doCall(JOINTLY::JOINTLYsolve, args = ..., alwaysArgs = list(kernel.list = kernel.list, snn.list = snn.list, rare.list = rare.list, cpca.result = cpca.res, k = factors, init = init, iter.max = iter.max, alpha = alpha.loss, mu = mu.loss, lambda = lambda.loss, beta = beta.loss, ncpu = ncpu, progressbar = verbose))
+  mat <- R.utils::doCall(JOINTLY::JOINTLYsolve, args = ..., alwaysArgs = list(bpparam = bpparam, kernel.list = kernel.list, snn.list = snn.list, rare.list = rare.list, cpca.result = cpca.res, k = factors, init = init, iter.max = iter.max, alpha = alpha.loss, mu = mu.loss, lambda = lambda.loss, beta = beta.loss, ncpu = ncpu, progressbar = verbose))
   
   ## Finalize results
   if (verbose) { message("Finalizing.")}

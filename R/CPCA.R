@@ -18,6 +18,7 @@
 #' @param tol Tolerance (minimum increase in fit) for early stopping svd decomposition [default = 1e-5]
 #' @param eps Epsilon (minimum values of distances) for early stopping svd decomposition [default = .Machine$double.eps ^ (4 / 5)]
 #' @param verbose Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]
+#' @param bpparam *Param to use for parallel processing [default = SerialParam()]
 #'
 #' @return List containing a list (per-batch) of CPCAs and a list (per-batch) of normalized counts.
 #' @export
@@ -25,11 +26,12 @@
 #' @import SingleCellExperiment
 #' @import scry
 #' @import irlba
+#' @import BiocParallel
 
 cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 1000, selection.method = "deviance", 
                  threshold = 0.8, kc = 20, ki = 20, do.center = TRUE, feat.type = "inclusive", oversampling = 10, ncpu = 1, 
                  iter.max = 100, tol = 1e-05, eps = .Machine$double.eps^(4/5), 
-                 verbose = TRUE) 
+                 verbose = TRUE, bpparam = SerialParam()) 
 {
   if (verbose) { message("Performing feature selection.")}
   if (selection.method == "deviance") {
@@ -105,9 +107,9 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   
   if (pca.type == "cpca") {
     if (verbose) { message("Calculating variance-covariance matrix.")}
-    V.list <- future({future_lapply(scale.list, future.seed = TRUE, FUN = function(x) {
+    V.list <- bplapply(scale.list, BPPARAM = bpparam, FUN = function(x) {
       return(JOINTLY:::matDiMult(Matrix::t(x), x, n_cores = ncpu)/(nrow(x) - 1))
-    })})
+    })
     V.list <- value(V.list)
     V <- matrix(nrow = dim(V.list[[1]])[1], ncol = dim(V.list[[1]])[1], 0)
     sums <- sum(unlist(lapply(scale.list, FUN = "nrow")))
@@ -144,7 +146,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     for (ds in 1:length(scale.list)) {
       VScale[[ds]] <- list(ds = ds, V = V.list[[ds]], S = scale.list[[ds]])
     }
-    var.explain <- future_lapply(VScale, future.seed = TRUE, FUN = function(x) {
+    var.explain <- bplapply(VScale, BPPARAM = bpparam, FUN = function(x) {
       k <- kc
       n <- min(ncol(x$V), k + oversampling)
       Q <- matrix(rnorm(ncol(x$V) * n), ncol(x$V))
@@ -175,16 +177,17 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     })
     var.explain <- as.data.frame(do.call("rbind",var.explain))
     ds.individual <- var.explain[var.explain[, 2]/var.explain[, 3] < threshold, 1]
-    if (verbose) { message("Processing samples with excess variance.")}
+    
     
     if (length(ds.individual) > 0) {
+      if (verbose) { message(paste("Processing ", length(ds.individual), " batches with excess variance.", sep=""))}
       SV.list <- list()
       counter <- 1
       for (ds in ds.individual) {
         SV.list[[counter]] <- list(V = V.list[[ds]], S = scale.list[[ds]], ds = ds)
         counter <- counter + 1
       }
-      S.list <- future_lapply(SV.list, future.seed = TRUE, FUN = function(x) {
+      S.list <- bplapply(SV.list, BPPARAM = bpparam, FUN = function(x) {
         V <- x$V - JOINTLY:::matTriMult(sc$u, t(sc$u), x$V, n_cores = ncpu)
         k <- ki
         n <- min(ncol(V), k + oversampling)

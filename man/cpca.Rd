@@ -20,7 +20,8 @@ cpca(
   iter.max = 100,
   tol = 1e-05,
   eps = .Machine$double.eps^(4/5),
-  verbose = TRUE
+  verbose = TRUE,
+  bpparam = SerialParam()
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ cpca(
 \item{eps}{Epsilon (minimum values of distances) for early stopping svd decomposition [default = .Machine$double.eps ^ (4 / 5)]}
 
 \item{verbose}{Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]}
+
+\item{bpparam}{*Param to use for parallel processing [default = SerialParam()]}
 }
 \value{
 List containing a list (per-batch) of CPCAs and a list (per-batch) of normalized counts.

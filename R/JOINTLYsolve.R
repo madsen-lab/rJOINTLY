@@ -21,15 +21,15 @@
 #' @param share.objects Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param save_all Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]
+#' @param bpparam *Param to use for parallel processing [default = SerialParam()]
 #'
 #' @return A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
-#' @import future
-#' @import future.apply
+#' @import BiocParallel
 #' @import e1071
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE, bpparam = SerialParam()) {
   ## Convert to dense matrices
   norm.list <- list()
   for (ds in 1:length(kernel.list)) { 
@@ -149,7 +149,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   for (iter in 1:iter.max) {
     # Solve new H matrices
     start <- Sys.time()
-    iter.result <- future_lapply(data.list, future.seed = TRUE, FUN = function(x) {
+    iter.result <- bplapply(data.list, BPPARAM = bpparam, FUN = function(x) {
       ## Define indices of other samples
       ds <- x$ds
       js <- seq(1, n_ds,1)
