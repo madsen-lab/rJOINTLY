@@ -104,12 +104,9 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   }
   
   if (pca.type == "cpca") {
-    V.list <- list()
-    for (ds in 1:length(scale.list)) {
-      V.list[[ds]] <- JOINTLY:::matDiMult(Matrix::t(scale.list[[ds]]), 
-                                          scale.list[[ds]], n_cores = ncpu)/(nrow(scale.list[[ds]]) - 
-                                                                               1)
-    }
+    V.list <- future_lapply(scale.list, future.seed = TRUE, FUN = function(x) {
+      matDiMult(Matrix::t(x), x, n_cores = ncpu)/(nrow(x) - 1)
+    })
     V <- matrix(nrow = dim(V.list[[1]])[1], ncol = dim(V.list[[1]])[1], 
                 0)
     for (ds in 1:length(scale.list)) {
@@ -122,7 +119,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     d <- rep(0, k)
     for (iter in 1:iter.max) {
       Q <- qr.Q(qr(V %*% Q))
-      B <- crossprod(V, Q)
+      B <- matDiMult(t(V), Q, n_cores = ncpu)
       Q <- qr.Q(qr(B))
       d_new <- svd(B, nu = 0, nv = 0)$d[1:k]
       idx <- d_new > eps
@@ -133,7 +130,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
       d <- d_new
     }
     Q <- qr.Q(qr(V %*% Q))
-    B <- crossprod(Q, V)
+    B <- matDiMult(t(Q), V, n_cores = ncpu)
     sc <- svd(B)
     sc$u <- Q %*% sc$u
     sc$u <- sc$u[, 1:k]
@@ -151,7 +148,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
       d <- rep(0, k)
       for (iter in 1:iter.max) {
         Q <- qr.Q(qr(x$V %*% Q))
-        B <- crossprod(x$V, Q)
+        B <- matDiMult(t(x$V), Q, n_cores = ncpu)
         Q <- qr.Q(qr(B))
         d_new <- svd(B, nu = 0, nv = 0)$d[1:k]
         idx <- d_new > eps
@@ -162,7 +159,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
         d <- d_new
       }
       Q <- qr.Q(qr(x$V %*% Q))
-      B <- crossprod(Q, x$V)
+      B <- matDiMult(t(Q), x$V, n_cores = ncpu)
       s <- svd(B)
       s$u <- Q %*% s$u
       s$u <- s$u[, 1:k]
@@ -180,7 +177,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     R.list <- structure(vector(mode = "list", length = length(ds.individual)), 
                         names = names(dataset.list)[ds.individual])
     for (ds in ds.individual) {
-      R.list[[ds]] <- V.list[[ds]] - JOINTLY:::matTriMult(sc$u, t(sc$u), 
+      R.list[[ds]] <- V.list[[ds]] - matTriMult(sc$u, t(sc$u), 
                                                           V.list[[ds]], n_cores = ncpu)
     }
     S.list <- structure(vector(mode = "list", length = length(scale.list)), 
@@ -193,7 +190,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
       d <- rep(0, k)
       for (iter in 1:iter.max) {
         Q <- qr.Q(qr(V %*% Q))
-        B <- crossprod(V, Q)
+        B <- matDiMult(t(V), Q, n_cores = ncpu)
         Q <- qr.Q(qr(B))
         d_new <- svd(B, nu = 0, nv = 0)$d[1:k]
         idx <- d_new > eps
@@ -204,7 +201,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
         d <- d_new
       }
       Q <- qr.Q(qr(V %*% Q))
-      B <- crossprod(Q, V)
+      B <- matDiMult(t(Q), V, n_cores = ncpu)
       s <- svd(B)
       s$u <- Q %*% s$u
       s$u <- s$u[, 1:k]

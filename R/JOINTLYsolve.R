@@ -157,30 +157,30 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
       
       ## Update H matrix
       # Numerators
-      numerator1 <- t(t(JOINTLY:::matDiMult(t(x$Fmat), x$kernel, ncpu)) * (x$rare * alpha))
+      numerator1 <- t(t(matDiMult(t(x$Fmat), x$kernel, ncpu)) * (x$rare * alpha))
       numerator2 <- 2 * mu * x$Hmat
-      numerator3 <- lambda * JOINTLY:::matDiMult(x$Hmat, x$snn, ncpu)
+      numerator3 <- lambda * matDiMult(x$Hmat, x$snn, ncpu)
       numerator4 <- matrix(nrow = k, ncol = ncol(x$Hmat), 0)
       for (js.idx in js) {
-        numerator4 <- numerator4 + ((beta * JOINTLY:::matDiMult(t(Wmat[[js.idx]]), x$norm, ncpu)))  + ((beta * JOINTLY:::matTriMult(t(Wmat[[ds]]), Wmat[[ds]], x$Hmat, ncpu)))
+        numerator4 <- numerator4 + ((beta * matDiMult(t(Wmat[[js.idx]]), x$norm, ncpu)))  + ((beta * matTriMult(t(Wmat[[ds]]), Wmat[[ds]], x$Hmat, ncpu)))
       }
       
       # Denominators
-      denom1 = t(t(JOINTLY:::matQuadMult(t(x$Fmat), x$kernel, x$Fmat, x$Hmat, ncpu)) * (x$rare * alpha))
-      denom1 = denom1 + 2 * mu * JOINTLY:::matTriMult(x$Hmat, t(x$Hmat), x$Hmat, ncpu)
-      denom1 = denom1 + lambda * JOINTLY:::matDiMult(x$Hmat, x$DAmat, ncpu)
+      denom1 = t(t(matQuadMult(t(x$Fmat), x$kernel, x$Fmat, x$Hmat, ncpu)) * (x$rare * alpha))
+      denom1 = denom1 + 2 * mu * matTriMult(x$Hmat, t(x$Hmat), x$Hmat, ncpu)
+      denom1 = denom1 + lambda * matDiMult(x$Hmat, x$DAmat, ncpu)
       denom2 = matrix(nrow = k, ncol = ncol(x$Hmat), 0)
       for (js.idx in js) {
-        denom2 = denom2 + (beta * JOINTLY:::matTriMult(t(Wmat[[js.idx]]), Wmat[[js.idx]], x$Hmat, ncpu))
-        denom2 = denom2 + (2 * beta * JOINTLY:::matTriMult(t(Wmat[[ds]]), Wmat[[js.idx]], x$Hmat, ncpu))
-        denom2 = denom2 + (beta * JOINTLY:::matDiMult(t(Wmat[[ds]]),x$norm, ncpu))
+        denom2 = denom2 + (beta * matTriMult(t(Wmat[[js.idx]]), Wmat[[js.idx]], x$Hmat, ncpu))
+        denom2 = denom2 + (2 * beta * matTriMult(t(Wmat[[ds]]), Wmat[[js.idx]], x$Hmat, ncpu))
+        denom2 = denom2 + (beta * matDiMult(t(Wmat[[ds]]),x$norm, ncpu))
       }
       
       # Final estimate of Hmat
       H_new <- x$Hmat * ((numerator1 + numerator2 + numerator3 + numerator4) / (denom1 + denom2))
       
       # Update F matrix
-      F_new <- x$Fmat * (JOINTLY:::matDiMult(x$kernel, t(H_new), ncpu) / JOINTLY:::matQuadMult(x$kernel, x$Fmat, H_new, t(H_new), ncpu))
+      F_new <- x$Fmat * (matDiMult(x$kernel, t(H_new), ncpu) / matQuadMult(x$kernel, x$Fmat, H_new, t(H_new), ncpu))
       
       # Update W matrix
       linear <- lm.fit(y = t(x$norm), x = t(H_new))
