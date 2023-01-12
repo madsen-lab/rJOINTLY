@@ -39,28 +39,23 @@ jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "
   # TODO: Check for missing names for datatsets already provided as a list
   
   # Preprocess
-  if (verbose) { message("Preprocessing dataset.")}
-  preprocessed <- R.utils::doCall(JOINTLY::preprocess, args = ..., alwaysArgs = list(data = data, batch.var = batch.var))
+  preprocessed <- R.utils::doCall(JOINTLY::preprocess, args = ..., alwaysArgs = list(data = data, batch.var = batch.var, verbose = verbose))
   
   # CPCA
-  if (verbose) { message("Computing consensus PCA.")}
   cpca.res <- R.utils::doCall(JOINTLY::cpca, args = ..., alwaysArgs = list(bpparam = bpparam, dataset.list = preprocessed, nfeat = nfeat, selection.method = selection.method, threshold = cpca.threshold, kc = cpca.kc, ki = cpca.ki, ncpu = ncpu, iter.max = iter.max, verbose = verbose))
   norm.list <- cpca.res$normalized
   cpca.list <- cpca.res$cpca 
   
   # prepareData
-  if (verbose) { message("Computing decay kernels, SNN graphs and rareity scores.")}
-  inputs <- R.utils::doCall(JOINTLY::prepareData, args = ..., alwaysArgs = list(dataset.list = cpca.list, k.decay = decay.k, alpha = decay.alpha, k.snn = snn.k))
+  inputs <- R.utils::doCall(JOINTLY::prepareData, args = ..., alwaysArgs = list(dataset.list = cpca.list, k.decay = decay.k, alpha = decay.alpha, k.snn = snn.k, verbose = verbose))
   kernel.list <- inputs$kernels
   snn.list <- inputs$snn
   rare.list <- inputs$rareity
   
   # Solve
-  if (verbose) { message("Solving matrices.")}
   mat <- R.utils::doCall(JOINTLY::JOINTLYsolve, args = ..., alwaysArgs = list(bpparam = bpparam, kernel.list = kernel.list, snn.list = snn.list, rare.list = rare.list, cpca.result = cpca.res, k = factors, init = init, iter.max = iter.max, alpha = alpha.loss, mu = mu.loss, lambda = lambda.loss, beta = beta.loss, ncpu = ncpu, progressbar = verbose))
   
   ## Finalize results
-  if (verbose) { message("Finalizing.")}
   Hmat <- mat$Hmat.scaled
   if (is.null(batch.var)) {
     result.list <- list()

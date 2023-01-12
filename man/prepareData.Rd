@@ -12,7 +12,8 @@ prepareData(
   alpha = 5,
   threshold = 1e-04,
   prune = 1/15,
-  rare = FALSE
+  rare = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ prepareData(
 \item{prune}{The minimum number of normalized neighbors between cells to retain the eddge [default = 1/15]}
 
 \item{rare}{A boolean (TRUE or FALSE) indicating if rare cell index should be calculated from the distance to the Kth neighbour [default = FALSE]}
+
+\item{verbose}{Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]}
 }
 \value{
 List (per-batch) of alpha decay kernels.

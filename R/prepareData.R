@@ -10,15 +10,17 @@
 #' @param threshold Threshold the minimum similarity between cells [default = 1e-4]
 #' @param prune The minimum number of normalized neighbors between cells to retain the eddge [default = 1/15]
 #' @param rare A boolean (TRUE or FALSE) indicating if rare cell index should be calculated from the distance to the Kth neighbour [default = FALSE]
+#' @param verbose Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]
 #'
 #' @return List (per-batch) of alpha decay kernels.
 #' @export
 #' @import Matrix
 #' @import Seurat
 
-prepareData = function(dataset.list, k.decay = 5, k.rare = 20, k.snn = 30, alpha = 5, threshold = 1e-4, prune = 1/15, rare = FALSE) {
+prepareData = function(dataset.list, k.decay = 5, k.rare = 20, k.snn = 30, alpha = 5, threshold = 1e-4, prune = 1/15, rare = FALSE, verbose = FALSE) {
   # TODO: Check that alpha is OK
   # Setup to capture results
+  if (verbose) { message("Computing decay kernels, SNN graphs and rareity scores.\n")}
   kernel.list <- list()
   rare.list <- list()
   snn.list <- list()

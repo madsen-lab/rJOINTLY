@@ -33,7 +33,8 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
                  iter.max = 100, tol = 1e-05, eps = .Machine$double.eps^(4/5), 
                  verbose = TRUE, bpparam = SerialParam()) 
 {
-  if (verbose) { message("Performing feature selection.")}
+  if (verbose) { message("Decomposing samples using (consensus) PCA.")}
+  if (verbose) { message("\tPerforming feature selection.")}
   if (selection.method == "deviance") {
     features <- as.data.frame(scry::devianceFeatureSelection(dataset.list[[1]]))
     colnames(features)[1] <- "Dataset1"
@@ -87,7 +88,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   }
   if (length(sel.features) == 0) {
   }
-  if (verbose) { message("Normalizing and scaling counts.")}
+  if (verbose) { message("\tNormalizing and scaling counts.")}
   norm.list <- list()
   for (ds in 1:length(dataset.list)) {
     x <- dataset.list[[ds]]
@@ -106,7 +107,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   }
   
   if (pca.type == "cpca") {
-    if (verbose) { message("Calculating variance-covariance matrix.")}
+    if (verbose) { message("\tCalculating variance-covariance matrix.")}
     V.list <- bplapply(scale.list, BPPARAM = bpparam, FUN = function(x) {
       return(JOINTLY:::matDiMult(Matrix::t(x), x, n_cores = ncpu)/(nrow(x) - 1))
     })
@@ -119,7 +120,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     n <- min(nrow(V), k + oversampling)
     Q <- matrix(rnorm(nrow(V) * n), nrow(V))
     d <- rep(0, k)
-    if (verbose) { message("Running consensus PCA.")}
+    if (verbose) { message("\tRunning SVD.")}
     for (iter in 1:iter.max) {
       Q <- qr.Q(qr(JOINTLY:::matDiMult(V, Q, n_cores = ncpu)))
       B <- JOINTLY:::matDiMult(t(V), Q, n_cores = ncpu)
@@ -140,7 +141,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     sc$d <- sc$d[1:k]
     sc$v <- sc$v[, 1:k]
     sc$mprod <- 2 * iter + 1
-    if (verbose) { message("Calculating explained variance.")}
+    if (verbose) { message("\tCalculating explained variance.")}
     VScale <- list()
     for (ds in 1:length(scale.list)) {
       VScale[[ds]] <- list(ds = ds, V = V.list[[ds]], S = scale.list[[ds]])
@@ -179,7 +180,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     
     
     if (length(ds.individual) > 0) {
-      if (verbose) { message(paste("Processing ", length(ds.individual), " batches with excess variance.", sep=""))}
+      if (verbose) { message(paste("\tProcessing ", length(ds.individual), " batches with excess variance.\n", sep=""))}
       SV.list <- list()
       counter <- 1
       for (ds in ds.individual) {
@@ -239,6 +240,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
       names(C.list)[ds] <- names(dataset.list)[ds]
     }
   } else {
+    if (verbose) { message("\tRunning per-batch SVD.\n")}
     C.list <- list()
     scale.data <- do.call("rbind", scale.list)
     svd <- irlba::irlba(scale.data, nv = kc)

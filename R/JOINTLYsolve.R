@@ -22,6 +22,7 @@
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param save_all Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]
 #' @param bpparam *Param to use for parallel processing [default = SerialParam()]
+#' @param verbose Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]
 #'
 #' @return A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
 #' @import BiocParallel
@@ -31,6 +32,7 @@
 
 JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE, bpparam = SerialParam()) {
   ## Convert to dense matrices
+  if (verbose) { message("Solving matrices.")}
   norm.list <- list()
   for (ds in 1:length(kernel.list)) { 
     kernel.list[[ds]] <- as.matrix(kernel.list[[ds]]) 

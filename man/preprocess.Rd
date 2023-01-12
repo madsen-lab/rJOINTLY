@@ -4,12 +4,14 @@
 \alias{preprocess}
 \title{Preprocess}
 \usage{
-preprocess(data, batch.var = NULL)
+preprocess(data, batch.var = NULL, verbose = TRUE)
 }
 \arguments{
 \item{data}{A single (or list of) Seurat, SingleCellExperiment, or Matrix-like object(s) containing raw counts.}
 
 \item{batch.var}{A variable to split Seurat or SingleCellExperiment objects into a list [default = NULL]}
+
+\item{verbose}{Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]}
 }
 \value{
 A list (per-batch) of raw counts

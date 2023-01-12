@@ -4,14 +4,16 @@
 #'
 #' @param data A single (or list of) Seurat, SingleCellExperiment, or Matrix-like object(s) containing raw counts.
 #' @param batch.var A variable to split Seurat or SingleCellExperiment objects into a list [default = NULL]
+#' @param verbose Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]
 #'
 #' @return A list (per-batch) of raw counts
 #' @export
 #' @import Seurat
 #' @import SingleCellExperiment
 
-preprocess = function(data, batch.var = NULL) {
+preprocess = function(data, batch.var = NULL, verbose = TRUE) {
   ## Split data into a list
+  if (verbose) { message("Preprocessing dataset.\n")}
   count.list <- list()
   if (!is.null(batch.var)) {
     # TODO: Check if batch variable exists, otherwise break

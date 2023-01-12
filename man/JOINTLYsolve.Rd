@@ -67,6 +67,8 @@ JOINTLYsolve(
 \item{save_all}{Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]}
 
 \item{bpparam}{*Param to use for parallel processing [default = SerialParam()]}
+
+\item{verbose}{Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]}
 }
 \value{
 A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
