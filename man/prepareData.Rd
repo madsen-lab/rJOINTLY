@@ -13,7 +13,7 @@ prepareData(
   threshold = 1e-04,
   prune = 1/15,
   rare = FALSE,
-  verbose = FALSE
+  verbose = TRUE
 )
 }
 \arguments{

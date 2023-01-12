@@ -17,7 +17,7 @@
 #' @import Matrix
 #' @import Seurat
 
-prepareData = function(dataset.list, k.decay = 5, k.rare = 20, k.snn = 30, alpha = 5, threshold = 1e-4, prune = 1/15, rare = FALSE, verbose = FALSE) {
+prepareData = function(dataset.list, k.decay = 5, k.rare = 20, k.snn = 30, alpha = 5, threshold = 1e-4, prune = 1/15, rare = FALSE, verbose = TRUE) {
   # TODO: Check that alpha is OK
   # Setup to capture results
   if (verbose) { message("Computing decay kernels, SNN graphs and rareity scores.\n")}
