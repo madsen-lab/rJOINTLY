@@ -33,7 +33,7 @@
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE, bpparam = SerialParam(), learning_rate = 1, decay_rate = 1, lr.F = TRUE) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE, bpparam = SerialParam(), learning_rate = 1, decay_rate = 1, lr.F = TRUE, verbose = TRUE) {
   ## Convert to dense matrices
   if (verbose) { message("Solving matrices.")}
   norm.list <- list()

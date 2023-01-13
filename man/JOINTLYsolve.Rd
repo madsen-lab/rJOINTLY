@@ -27,7 +27,8 @@ JOINTLYsolve(
   bpparam = SerialParam(),
   learning_rate = 1,
   decay_rate = 1,
-  lr.F = TRUE
+  lr.F = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
