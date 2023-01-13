@@ -23,6 +23,9 @@
 #' @param save_all Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]
 #' @param bpparam *Param to use for parallel processing [default = SerialParam()]
 #' @param verbose Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]
+#' @param learning_rate Learning rate for learning [default = 1]
+#' @param decay_rate Decay rate for learning [default = 1]
+#' @param lr.F Boolean (TRUE or FALSE) indicating whether or not to use learning rate on F matrix updates [default = TRUE]
 #'
 #' @return A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
 #' @import BiocParallel
@@ -30,7 +33,7 @@
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE, bpparam = SerialParam()) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE, bpparam = SerialParam(), learning_rate = 1, decay_rate = 1, lr.F = TRUE) {
   ## Convert to dense matrices
   if (verbose) { message("Solving matrices.")}
   norm.list <- list()
@@ -179,10 +182,16 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
       }
       
       # Final estimate of Hmat
-      H_new <- x$Hmat * ((numerator1 + numerator2 + numerator3 + numerator4) / (denom1 + denom2))
+      lr.iter <- learning_rate * decay_rate^(iter-1)
+      H_new <- x$Hmat * ((numerator1 + numerator2 + numerator3 + numerator4) / (denom1 + denom2)) * lr.iter
       
       # Update F matrix
-      F_new <- x$Fmat * (matDiMult(x$kernel, t(H_new), ncpu) / matQuadMult(x$kernel, x$Fmat, H_new, t(H_new), ncpu))
+      if (lr.F) {
+        lr.iter.Fmat <- lr.iter
+      } else {
+        lr.iter.Fmat <- 1
+      }
+      F_new <- x$Fmat * (matDiMult(x$kernel, t(H_new), ncpu) / matQuadMult(x$kernel, x$Fmat, H_new, t(H_new), ncpu)) * lr.iter.Fmat
       
       # Update W matrix
       linear <- lm.fit(y = t(x$norm), x = t(H_new))
