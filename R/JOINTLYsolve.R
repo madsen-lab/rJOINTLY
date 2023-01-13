@@ -183,7 +183,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
       
       # Final estimate of Hmat
       lr.iter <- learning_rate * decay_rate^(iter-1)
-      H_new <- x$Hmat * ((numerator1 + numerator2 + numerator3 + numerator4) / (denom1 + denom2)) * lr.iter
+      H_new <- x$Hmat * (((numerator1 + numerator2 + numerator3 + numerator4) / (denom1 + denom2)) ^ lr.iter)
       
       # Update F matrix
       if (lr.F) {
@@ -191,7 +191,7 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
       } else {
         lr.iter.Fmat <- 1
       }
-      F_new <- x$Fmat * (matDiMult(x$kernel, t(H_new), ncpu) / matQuadMult(x$kernel, x$Fmat, H_new, t(H_new), ncpu)) * lr.iter.Fmat
+      F_new <- x$Fmat * ((matDiMult(x$kernel, t(H_new), ncpu) / matQuadMult(x$kernel, x$Fmat, H_new, t(H_new), ncpu)) ^ lr.iter.Fmat)
       
       # Update W matrix
       linear <- lm.fit(y = t(x$norm), x = t(H_new))
