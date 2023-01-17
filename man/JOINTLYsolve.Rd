@@ -25,9 +25,6 @@ JOINTLYsolve(
   ncpu = 1,
   save_all = FALSE,
   bpparam = SerialParam(),
-  learning_rate = 1,
-  decay_rate = 1,
-  lr.F = TRUE,
   verbose = TRUE
 )
 }
@@ -71,12 +68,6 @@ JOINTLYsolve(
 \item{save_all}{Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]}
 
 \item{bpparam}{*Param to use for parallel processing [default = SerialParam()]}
-
-\item{learning_rate}{Learning rate for learning [default = 1]}
-
-\item{decay_rate}{Decay rate for learning [default = 1]}
-
-\item{lr.F}{Boolean (TRUE or FALSE) indicating whether or not to use learning rate on F matrix updates [default = TRUE]}
 
 \item{verbose}{Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]}
 }
