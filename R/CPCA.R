@@ -11,6 +11,7 @@
 #' @param kc The number of common PCs to calculate [default = 20]
 #' @param ki The number of invididual PCs to calcuate [default = 20]
 #' @param do.center Boolean indicating whether or not to center expression values prior to decomposition [default = TRUE]
+#' @param do.scale Boolean indicating whether or not to scale expression values prior to decomposition [default = TRUE]
 #' @param feat.type The method (either 'inclusive' or 'exclusive') for selecting variable feature [default = "inclusive"]
 #' @param oversampling The number of PCs to calculate in excess the selected PCs [default = 10]
 #' @param ncpu The number of cpus to use for matrix multiplications [default = 1]
@@ -18,6 +19,8 @@
 #' @param tol Tolerance (minimum increase in fit) for early stopping svd decomposition [default = 1e-5]
 #' @param eps Epsilon (minimum values of distances) for early stopping svd decomposition [default = .Machine$double.eps ^ (4 / 5)]
 #' @param verbose Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]
+#' @param norm.method The method (either 'logCPM' or 'shiftedLog') for normalizing counts [default = 'logCPM']
+#' @param sf.method The method (either 'simple', 'scran', 'scranCluster') for normalizing counts [default = 'simple']
 #' @param bpparam *Param to use for parallel processing [default = SerialParam()]
 #'
 #' @return List containing a list (per-batch) of CPCAs and a list (per-batch) of normalized counts.
@@ -27,11 +30,13 @@
 #' @import scry
 #' @import irlba
 #' @import BiocParallel
+#' @import scran
+#' @import transformGamPoi
 
 cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 1000, selection.method = "deviance", 
-                 threshold = 0.8, kc = 20, ki = 20, do.center = TRUE, feat.type = "inclusive", oversampling = 10, ncpu = 1, 
+                 threshold = 0.8, kc = 20, ki = 20, do.scale = TRUE, do.center = TRUE, feat.type = "inclusive", oversampling = 10, ncpu = 1, 
                  iter.max = 100, tol = 1e-05, eps = .Machine$double.eps^(4/5), 
-                 verbose = TRUE, bpparam = SerialParam()) 
+                 verbose = TRUE, norm.method = "logCPM", sf.method = "simple", bpparam = SerialParam()) 
 {
   if (verbose) { message("Decomposing samples using (consensus) PCA.")}
   if (verbose) { message("\tPerforming feature selection.")}
@@ -92,17 +97,53 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   norm.list <- list()
   for (ds in 1:length(dataset.list)) {
     x <- dataset.list[[ds]]
-    sf <- 10000/Matrix::colSums(x)
-    x <- Matrix::t(Matrix::t(x) * sf)
-    x@x <- log1p(x@x)
-    x <- x[rownames(x) %in% sel.features, ]
-    x <- x[match(sel.features, rownames(x)), ]
-    norm.list[[ds]] <- x
+    
+    # Size factors
+    if (sf.method == "simple") {
+      sf <- Matrix::colSums(x)/10000
+    } else if (sf.method == "scranCluster") {
+      cl <- scran::quickCluster(x)
+      sf <- scran::calculateSumFactors(x, clusters = cl)
+      zero.ids <- is.nan(sf) | sf <= 0
+      sf[zero.ids] <- NA
+      if (any(zero.ids)) {
+        sf <- sf/exp(mean(log(sf), na.rm = TRUE))
+        sf[zero.ids] <- 0.001
+      } else {
+      sf <- sf/exp(mean(log(sf)))
+      }
+    } else if (sf.method == "scran") {
+      sf <- scran::calculateSumFactors(x)
+      zero.ids <- is.nan(sf) | sf <= 0
+      sf[zero.ids] <- NA
+      if (any(zero.ids)) {
+        sf <- sf/exp(mean(log(sf), na.rm = TRUE))
+        sf[zero.ids] <- 0.001
+      } else {
+      sf <- sf/exp(mean(log(sf)))
+      }
+    }
+    
+    # Transformation
+    if (norm.method == "logCPM") {
+      x <- Matrix::t(Matrix::t(x) / sf)
+      x@x <- log1p(x@x)
+      x <- x[rownames(x) %in% sel.features, ]
+      x <- x[match(sel.features, rownames(x)), ]
+      norm.list[[ds]] <- x
+    } else if (norm.method == "shiftedLog") {
+      x <- transformGamPoi::shifted_log_transform(x, size_factors = sf)
+      x <- x[rownames(x) %in% sel.features, ]
+      x <- x[match(sel.features, rownames(x)), ]
+      norm.list[[ds]] <- x
+    }
   }
   scale.list <- list()
   for (ds in 1:length(norm.list)) {
     x <- norm.list[[ds]]
-    x <- scale(Matrix::t(x), center = do.center)
+    if (do.scale | do.center) {
+      x <- scale(Matrix::t(x), scale = do.scale, center = do.center)
+    }
     scale.list[[ds]] <- x
   }
   
