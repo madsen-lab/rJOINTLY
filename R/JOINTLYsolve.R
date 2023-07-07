@@ -18,19 +18,19 @@
 #' @param lambda Lambda parameter of the loss function [default = 1]
 #' @param beta Beta parameter of the loss function [default = 5]
 #' @param progressbar A logical indicating whether or not to print a progress bar [default = TRUE]
-#' @param share.objects Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]
+#' @param share.objects Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = FALSE]
 #' @param ncpu The number of cpus to use for matrix multiplication [default = 1]
 #' @param save_all Boolean (TRUE or FALSE) indicating if all H, F and W matrices should be saved and outputted [default = FALSE]
 #' @param bpparam *Param to use for parallel processing [default = SerialParam()]
 #' @param verbose Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]
 #'
-#' @return A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
+#' @return A list containing normalized H matrices to use for clustering and normalized W matrix to use for interpretation, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
 #' @import BiocParallel
 #' @import e1071
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = TRUE, ncpu = 1, save_all = FALSE, bpparam = SerialParam(), verbose = TRUE) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = FALSE, ncpu = 1, save_all = FALSE, bpparam = SerialParam(), verbose = TRUE) {
   ## Convert to dense matrices
   if (verbose) { message("Solving matrices.")}
   norm.list <- list()
@@ -242,17 +242,42 @@ JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "
   names(Fmat.raw) <- list_names
   names(Wmat) <- list_names
 
-  # Scale  
+  # Scale the H matrix  
   res <- t(do.call("cbind", Hmat.raw))
   res <- scale(res)
   res <- t(scale(t(res)))
   colnames(res) <- paste("jointly_", 1:ncol(res), sep="")
   
+  # Scale the W matrix
+  W <- Wmat
+  for (i in 1:length(W)) { 
+    W.tmp <- W[[i]]
+    W.tmp <- scale(W.tmp)
+    W.tmp <- t(W.tmp)
+    W.tmp <- scale(W.tmp)
+    W.tmp <- t(W.tmp)
+    W[[i]] <- W.tmp
+  }
+  
+  # Sum the W matrix across batches
+  W.sum <- W[[1]]
+  for (i in 2:length(W)) { W.sum <- W.sum + W[[i]]}
+  W.sum <- W.sum / length(Wmat)
+  rownames(W.sum) <- rownames(cpca.result$normalized[[1]])
+  
+  # Scale the sum matrix
+  W.tmp <- W.sum
+  W.tmp <- scale(W.tmp)
+  W.tmp <- t(W.tmp)
+  W.tmp <- scale(W.tmp)
+  W.tmp <- t(W.tmp)
+  W.sum <- W.tmp
+  
   # Create output
   if (save_all) {
-    output <- list(Hmat.scaled = res, Hmat = Hmat.raw, Fmat = Fmat.raw, Wmat = Wmat, allH = Hmat.list, allF = Fmat.list, allW = Wmat.list)
+    output <- list(Hmat.scaled = res, Wmat.scaled = W.sum, Hmat = Hmat.raw, Fmat = Fmat.raw, Wmat = Wmat, allH = Hmat.list, allF = Fmat.list, allW = Wmat.list)
   } else {
-    output <- list(Hmat.scaled = res, Hmat = Hmat.raw, Fmat = Fmat.raw, Wmat = Wmat)
+    output <- list(Hmat.scaled = res, Wmat.scaled = W.sum, Hmat = Hmat.raw, Fmat = Fmat.raw, Wmat = Wmat)
   }
   
   # Return

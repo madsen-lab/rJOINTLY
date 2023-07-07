@@ -150,7 +150,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   if (pca.type == "cpca") {
     if (verbose) { message("\tCalculating variance-covariance matrix.")}
     V.list <- bplapply(scale.list, BPPARAM = bpparam, FUN = function(x) {
-      return(JOINTLY:::matDiMult(Matrix::t(x), x, n_cores = ncpu)/(nrow(x) - 1))
+      return(matDiMult(Matrix::t(x), x, n_cores = ncpu)/(nrow(x) - 1))
     })
     V <- matrix(nrow = dim(V.list[[1]])[1], ncol = dim(V.list[[1]])[1], 0)
     sums <- sum(unlist(lapply(scale.list, FUN = "nrow")))
@@ -163,8 +163,8 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     d <- rep(0, k)
     if (verbose) { message("\tRunning SVD.")}
     for (iter in 1:iter.max) {
-      Q <- qr.Q(qr(JOINTLY:::matDiMult(V, Q, n_cores = ncpu)))
-      B <- JOINTLY:::matDiMult(t(V), Q, n_cores = ncpu)
+      Q <- qr.Q(qr(matDiMult(V, Q, n_cores = ncpu)))
+      B <- matDiMult(t(V), Q, n_cores = ncpu)
       Q <- qr.Q(qr(B))
       d_new <- svd(B, nu = 0, nv = 0)$d[1:k]
       idx <- d_new > eps
@@ -174,10 +174,10 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
         break
       d <- d_new
     }
-    Q <- qr.Q(qr(JOINTLY:::matDiMult(V, Q, n_cores = ncpu)))
-    B <- JOINTLY:::matDiMult(t(Q), V, n_cores = ncpu)
+    Q <- qr.Q(qr(matDiMult(V, Q, n_cores = ncpu)))
+    B <- matDiMult(t(Q), V, n_cores = ncpu)
     sc <- svd(B)
-    sc$u <- JOINTLY:::matDiMult(Q, sc$u, n_cores = ncpu)
+    sc$u <- matDiMult(Q, sc$u, n_cores = ncpu)
     sc$u <- sc$u[, 1:k]
     sc$d <- sc$d[1:k]
     sc$v <- sc$v[, 1:k]
@@ -193,8 +193,8 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
       Q <- matrix(rnorm(ncol(x$V) * n), ncol(x$V))
       d <- rep(0, k)
       for (iter in 1:iter.max) {
-        Q <- qr.Q(qr(JOINTLY:::matDiMult(x$V, Q, n_cores = ncpu)))
-        B <- JOINTLY:::matDiMult(t(x$V), Q, n_cores = ncpu)
+        Q <- qr.Q(qr(matDiMult(x$V, Q, n_cores = ncpu)))
+        B <- matDiMult(t(x$V), Q, n_cores = ncpu)
         Q <- qr.Q(qr(B))
         d_new <- svd(B, nu = 0, nv = 0)$d[1:k]
         idx <- d_new > eps
@@ -204,10 +204,10 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
           break
         d <- d_new
       }
-      Q <- qr.Q(qr(JOINTLY:::matDiMult(x$V, Q, n_cores = ncpu)))
-      B <- JOINTLY:::matDiMult(t(Q), x$V, n_cores = ncpu)
+      Q <- qr.Q(qr(matDiMult(x$V, Q, n_cores = ncpu)))
+      B <- matDiMult(t(Q), x$V, n_cores = ncpu)
       s <- svd(B)
-      s$u <- JOINTLY:::matDiMult(Q, s$u, n_cores = ncpu)
+      s$u <- matDiMult(Q, s$u, n_cores = ncpu)
       s$u <- s$u[, 1:k]
       s$d <- s$d[1:k]
       s$v <- s$v[, 1:k]
@@ -229,14 +229,14 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
         counter <- counter + 1
       }
       S.list <- bplapply(SV.list, BPPARAM = bpparam, FUN = function(x) {
-        V <- x$V - JOINTLY:::matTriMult(sc$u, t(sc$u), x$V, n_cores = ncpu)
+        V <- x$V - matTriMult(sc$u, t(sc$u), x$V, n_cores = ncpu)
         k <- ki
         n <- min(ncol(V), k + oversampling)
         Q <- matrix(rnorm(ncol(V) * n), ncol(V))
         d <- rep(0, k)
         for (iter in 1:iter.max) {
-          Q <- qr.Q(qr(JOINTLY:::matDiMult(x$V, Q, n_cores = ncpu)))
-          B <- JOINTLY:::matDiMult(t(x$V), Q, n_cores = ncpu)
+          Q <- qr.Q(qr(matDiMult(x$V, Q, n_cores = ncpu)))
+          B <- matDiMult(t(x$V), Q, n_cores = ncpu)
           Q <- qr.Q(qr(B))
           d_new <- svd(B, nu = 0, nv = 0)$d[1:k]
           idx <- d_new > eps
@@ -246,18 +246,18 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
             break
           d <- d_new
         }
-        Q <- qr.Q(qr(JOINTLY:::matDiMult(x$V, Q, n_cores = ncpu)))
-        B <- JOINTLY:::matDiMult(t(Q), x$V, n_cores = ncpu)
+        Q <- qr.Q(qr(matDiMult(x$V, Q, n_cores = ncpu)))
+        B <- matDiMult(t(Q), x$V, n_cores = ncpu)
         s <- svd(B)
-        s$u <- JOINTLY:::matDiMult(Q, s$u, n_cores = ncpu)
+        s$u <- matDiMult(Q, s$u, n_cores = ncpu)
         s$u <- s$u[, 1:k]
         s$d <- s$d[1:k]
         s$v <- s$v[, 1:k]
         s$mprod <- 2 * iter + 1
         var.exp <- c()
-        total <- t(JOINTLY:::matDiMult(t(sc$u), t(x$S), n_cores = ncpu))
+        total <- t(matDiMult(t(sc$u), t(x$S), n_cores = ncpu))
         for (k.sel in 1:ki) {
-          var.exp <- c(var.exp, sum(apply(cbind(total, t(JOINTLY:::matDiMult(t(s$u[, 1:k.sel, drop = FALSE]), t(x$S), n_cores = ncpu))), 2, FUN = "var"))/sum(apply(x$S, 2, FUN = "var")))
+          var.exp <- c(var.exp, sum(apply(cbind(total, t(matDiMult(t(s$u[, 1:k.sel, drop = FALSE]), t(x$S), n_cores = ncpu))), 2, FUN = "var"))/sum(apply(x$S, 2, FUN = "var")))
         }
         k.sel <- which.min(abs(var.exp - var.explain[var.explain[, 1] == x$ds, 3] * threshold))
         s$u <- s$u[, 1:k.sel]
@@ -276,7 +276,7 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     }
     C.list <- list()
     for (ds in 1:length(scale.list)) {
-      C.list[[ds]] <- t(JOINTLY:::matDiMult(t(common), t(scale.list[[ds]]), n_cores = ncpu))
+      C.list[[ds]] <- t(matDiMult(t(common), t(scale.list[[ds]]), n_cores = ncpu))
       rownames(C.list[[ds]]) <- colnames(dataset.list[[ds]])
       names(C.list)[ds] <- names(dataset.list)[ds]
     }

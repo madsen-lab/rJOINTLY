@@ -20,7 +20,13 @@
 prepareData = function(dataset.list, k.decay = 5, k.rare = 20, k.snn = 30, alpha = 5, threshold = 1e-4, prune = 1/15, rare = FALSE, verbose = TRUE) {
   # TODO: Check that alpha is OK
   # Setup to capture results
-  if (verbose) { message("Computing decay kernels, SNN graphs and rareity scores.")}
+  if (verbose) { 
+    if (rare) { 
+      message("Computing decay kernels, SNN graphs and rareity scores.")
+    } else {
+      message("Computing decay kernels and SNN graphs.")
+    }
+  }
   kernel.list <- list()
   rare.list <- list()
   snn.list <- list()

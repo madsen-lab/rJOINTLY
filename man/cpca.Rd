@@ -13,6 +13,7 @@ cpca(
   threshold = 0.8,
   kc = 20,
   ki = 20,
+  do.scale = TRUE,
   do.center = TRUE,
   feat.type = "inclusive",
   oversampling = 10,
@@ -21,6 +22,8 @@ cpca(
   tol = 1e-05,
   eps = .Machine$double.eps^(4/5),
   verbose = TRUE,
+  norm.method = "logCPM",
+  sf.method = "simple",
   bpparam = SerialParam()
 )
 }
@@ -41,6 +44,8 @@ cpca(
 
 \item{ki}{The number of invididual PCs to calcuate [default = 20]}
 
+\item{do.scale}{Boolean indicating whether or not to scale expression values prior to decomposition [default = TRUE]}
+
 \item{do.center}{Boolean indicating whether or not to center expression values prior to decomposition [default = TRUE]}
 
 \item{feat.type}{The method (either 'inclusive' or 'exclusive') for selecting variable feature [default = "inclusive"]}
@@ -56,6 +61,10 @@ cpca(
 \item{eps}{Epsilon (minimum values of distances) for early stopping svd decomposition [default = .Machine$double.eps ^ (4 / 5)]}
 
 \item{verbose}{Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]}
+
+\item{norm.method}{The method (either 'logCPM' or 'shiftedLog') for normalizing counts [default = 'logCPM']}
+
+\item{sf.method}{The method (either 'simple', 'scran', 'scranCluster') for normalizing counts [default = 'simple']}
 
 \item{bpparam}{*Param to use for parallel processing [default = SerialParam()]}
 }

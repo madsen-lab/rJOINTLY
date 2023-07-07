@@ -21,7 +21,7 @@ JOINTLYsolve(
   lambda = 1,
   beta = 5,
   progressbar = TRUE,
-  share.objects = TRUE,
+  share.objects = FALSE,
   ncpu = 1,
   save_all = FALSE,
   bpparam = SerialParam(),
@@ -61,7 +61,7 @@ JOINTLYsolve(
 
 \item{progressbar}{A logical indicating whether or not to print a progress bar [default = TRUE]}
 
-\item{share.objects}{Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = TRUE]}
+\item{share.objects}{Boolean (TRUE or FALSE) indicating to use shared object to reduce memory requirements for parallel processing [default = FALSE]}
 
 \item{ncpu}{The number of cpus to use for matrix multiplication [default = 1]}
 
@@ -72,7 +72,7 @@ JOINTLYsolve(
 \item{verbose}{Boolean (TRUE or FALSE) indicating to print messages [default = TRUE]}
 }
 \value{
-A list containing normalized H matrices to use for clustering, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
+A list containing normalized H matrices to use for clustering and normalized W matrix to use for interpretation, as well a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
 }
 \description{
 Function to solve the NMF problem in JOINTLY

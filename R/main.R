@@ -6,7 +6,8 @@
 #' @param batch.var A variable to split Seurat or SingleCellExperiment objects into a list [default = NULL]
 #' @param factors The number of factors to calculate [default = 15]
 #' @param nfeat The number of features to select [default = 1000]
-#' @param init The method for initializing the H and F matrices ("random" or "clustering"). [default = "clustering"]
+#' @param modules Boolean (TRUE or FALSE) determining whether or not to return gene modules per factor [default = TRUE].
+#' @param init The method for initializing the H and F matrices ("random" or "clustering").[default = "clustering"]
 #' @param selection.method The method to use selecting highly-variable features [default = "deviance"]
 #' @param decay.k The number of neighbors to use for the decay function [default = 5]
 #' @param decay.alpha The power of the decay function [default = 5] 
@@ -24,16 +25,17 @@
 #' @param bpparam *Param to use for parallel processing [default = SerialParam()]
 #' @param ... Additional parameters to pass to functions within JOINTLY
 #'
-#' @return A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
+#' @return Returns either a Seurat object, a SingleCellExperiment object or a list containing the H and W matrices
 #' @export
 #' @import R.utils
 #' @import Rcpp
+#' @import inflection
 #' @importFrom methods as
 #' @importFrom stats coef lm.fit rnorm runif
 #' @useDynLib JOINTLY
 #'
 
-jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "clustering", bpparam = SerialParam(), selection.method = "deviance", decay.k = 5, decay.alpha = 5, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 1, mu.loss = 20, lambda.loss = 1, beta.loss = 5, snn.k = 30, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
+jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, modules = TRUE, init = "clustering", bpparam = SerialParam(), selection.method = "deviance", decay.k = 5, decay.alpha = 5, cpca.threshold = 0.8, cpca.kc = 20, cpca.ki = 20, alpha.loss = 1, mu.loss = 20, lambda.loss = 1, beta.loss = 5, snn.k = 30, ncpu = 1, iter.max = 100, verbose = TRUE, ...) {
   # TODO: Check parameters
   # TODO: Check for duplicated barcode names
   # TODO: Check for missing names for datatsets already provided as a list
@@ -58,7 +60,7 @@ jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "
   ## Finalize results
   Hmat <- mat$Hmat.scaled
   if (is.null(batch.var)) {
-    result.list <- list()
+    object.list <- list()
     for (ds in 1:length(data)) {
       tmp <- data[[ds]]
       Hmat.tmp <- Hmat[ rownames(Hmat) %in% colnames(data[[ds]]),]
@@ -70,19 +72,32 @@ jointly <- function(data, batch.var = NULL, factors = 15, nfeat = 1000, init = "
       } else {
         tmp <- Hmat.tmp
       }
-      result.list[[ds]] <- tmp
+      object.list[[ds]] <- tmp
     }
   } else {
     Hmat <- Hmat[ match(colnames(data), rownames(Hmat)),]
     if (class(data)[1] == "Seurat") {
       data[["JOINTLY"]] <- Seurat::CreateDimReducObject(Hmat, assay = "RNA")
-      result.list <- data
+      object.list <- data
     } else if (class(data)[1] == "SingleCellExperiment") {
       SingleCellExperiment::reducedDim(data, "JOINTLY") <- SingleCellExperiment::reduced.dim.matrix(Hmat)
-      result.list <- data
+      object.list <- data
     } else {
-      result.list <- Hmat
+      object.list <- Hmat
     }
+  }
+  
+  ## Process modules
+  if (modules) {
+    Wmat <- mat$Wmat.scaled
+    modules <- list()
+    for (i in 1:factors) {
+      modules[[length(modules)+1]] <- names(sort(Wmat[,i], decreasing = TRUE))[1:inflection::uik(y = sort(Wmat[,i], decreasing = TRUE), x = seq(1, nrow(Wmat),1))]
+      names(modules)[length(modules)] <- paste("factor_", i, sep="")
+    }
+    result.list = list(object = object.list, modules = modules)
+  } else {
+    result.list = list(object = object.list)
   }
   
   # Return

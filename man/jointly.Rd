@@ -9,6 +9,7 @@ jointly(
   batch.var = NULL,
   factors = 15,
   nfeat = 1000,
+  modules = TRUE,
   init = "clustering",
   bpparam = SerialParam(),
   selection.method = "deviance",
@@ -37,7 +38,9 @@ jointly(
 
 \item{nfeat}{The number of features to select [default = 1000]}
 
-\item{init}{The method for initializing the H and F matrices ("random" or "clustering"). [default = "clustering"]}
+\item{modules}{Boolean (TRUE or FALSE) determining whether or not to return gene modules per factor [default = TRUE].}
+
+\item{init}{The method for initializing the H and F matrices ("random" or "clustering").[default = "clustering"]}
 
 \item{bpparam}{*Param to use for parallel processing [default = SerialParam()]}
 
@@ -72,7 +75,7 @@ jointly(
 \item{...}{Additional parameters to pass to functions within JOINTLY}
 }
 \value{
-A list containing a list (per-batch) of H matrices, a list (per-batch) of F matrices and a list (per-batch) of W matrices.
+Returns either a Seurat object, a SingleCellExperiment object or a list containing the H and W matrices
 }
 \description{
 Function to cluster single-cell and single-nucleus RNA-seq data using JOINTLY.
