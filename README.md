@@ -34,7 +34,6 @@ proc <- preprocess(seu, batch_var)
 ## Run cPCA
 cpca <- cpca(proc)
 
-
 ## Prepare kernel and SNN graph
 inputs <- prepareData(cpca$cpca)
 
@@ -57,9 +56,6 @@ snn <- SNN.Construction(H, k = 20, threshold = 1/15)
 tree <- HGC.dendrogram(G = snn)
 cl <- cutree(tree, k = N_clusters)
 ```
-
-> _For any requests, please reach out to: <br/>[Jesper Madsen](jgsm@imada.sdu.dk) or [Andreas Møller](andreasfm@bmb.sdu.dk)_
-
 
 ### Citation
 _Møller AF, Madsen JGS et al. **Interpretable joint clustering of single-cell transcriptomes (2023)** Unpublished_  <br/>
