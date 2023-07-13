@@ -15,20 +15,17 @@ remotes::install_github("madsen-lab/rJOINTLY")
 
 # Usage
 
-JOINTLY uses a list of scRNA-seq expression objects such as {[Seurat]([https://github.com/scverse/scanpy](https://github.com/satijalab/seurat))}, {[SingleCellExperiment](https://github.com/drisso/SingleCellExperiment)} or raw expression matrices. 
+JOINTLY uses a list of scRNA-seq expression objects such as {[Seurat](https://github.com/satijalab/seurat)}, {[SingleCellExperiment](https://github.com/drisso/SingleCellExperiment)} or raw expression matrices. 
 Here we demonstrate how to make a JOINTLY object and how to run the clustering algorithm. 
 
 
 ```{R}
 ## Load libraries
-import scanpy as sc
-from jointly import jointly, CreateJointlyObject_from_scanpyList
-
+library(Seurat)
+library(rJOINTLY)
 
 ## Load test data
-data_list = [sc.read_h5ad('pancdata/panc1.h5ad'), 
-             sc.read_h5ad('pancdata/panc2.h5ad'), 
-             sc.read_h5ad('pancdata/panc3.h5ad')]
+seu <- readRDS(file = "../data/data_seurat.rds")
 
 
 ## Preprocess Seurat a object
