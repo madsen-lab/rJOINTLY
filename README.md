@@ -27,34 +27,14 @@ library(rJOINTLY)
 ## Load test data
 seu <- readRDS(file = "../data/data_seurat.rds")
 
+## Run JOINTLY with default parameters
+batch_var = 'donor_id'
+out <- jointly(seu, batch.var = batch_var)
 
-## Preprocess Seurat a object
-proc <- preprocess(seu, batch_var)
-
-## Run cPCA
-cpca <- cpca(proc)
-
-## Prepare kernel and SNN graph
-inputs <- prepareData(cpca$cpca)
-
-## Running JOINTLY with default parameters
-jointly(jointlyObject)
-
-## Running JOINTLY with default parameters
-solved <- JOINTLYsolve(inputs$kernels, inputs$snn, inputs$rareity, cpca, bpparam = BiocParallel::MulticoreParam(), progressbar = FALSE)
-
-## Get and scale clustering matrix
-H <- t(do.call("cbind",solved$Hmat))
-H <- H[ match(colnames(data), rownames(H)),]
-H <- scale(H)
-H <- t(scale(t(H)))
-colnames(H) <- paste("JOINTLY", 1:ncol(H), sep="_")
-
-## Cluster the matrix using e.g. hierarchical clustering
-N_clusters = 5
-snn <- SNN.Construction(H, k = 20, threshold = 1/15)
-tree <- HGC.dendrogram(G = snn)
-cl <- cutree(tree, k = N_clusters)
+## Run UMAP
+jointly_out <- out[[1]]
+jointly_out <- RunUMAP(jointly_out, reduction = "JOINTLY", dims = 1:10)
+DimPlot(jointly_out, label = TRUE, group.by = batch_var)
 ```
 
 ### Citation
