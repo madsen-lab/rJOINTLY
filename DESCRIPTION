@@ -10,7 +10,7 @@ Maintainer: Jesper Grud Skat Madsen <jgsm@imada.sdu.dk>
 Description: Joint clustering of single-cell and single-nucleus RNA-seq datasets.
 License: GPL-3
 URL: https://github.com/madsen-lab/rJOINTLY
-Depends: R (>= 4.0.0)
+Depends: R (>= 4.1.0)
 biocViews:
 Imports: Rcpp (>= 1.0.7), RcppEigen, Matrix, R.utils, RANN, Seurat, SingleCellExperiment, scry, methods, BiocParallel, e1071, SharedObject, scran, transformGamPoi, inflection
 LinkingTo: Rcpp, RcppEigen
