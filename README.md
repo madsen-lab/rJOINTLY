@@ -4,7 +4,7 @@ JOINTLY is an R package for interpretable joint clustering of single-cell and si
 
 JOINTLY is also available as a Python package [here](https://github.com/madsen-lab/pyJOINTLY)
 
-Scripts for reproducing the analyses in the manuscript are available [here]([)](https://github.com/madsen-lab/JOINTLY_reproducibility)
+Scripts for reproducing the analyses in the manuscript are available [here](https://github.com/madsen-lab/JOINTLY_reproducibility)
 
 # Installation
 
