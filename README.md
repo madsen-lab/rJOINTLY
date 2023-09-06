@@ -194,4 +194,4 @@ mean(res.imputed[ res.imputed$id %in% markers.raw,"auc"]) # 0.8296886
 # Citation
 If you use JOINTLY in your work, please consider citing our manuscript:
 
-_Møller AF, Madsen JGS et al. **Interpretable joint clustering of single-cell transcriptomes (2023)** Unpublished_  <br/>
+_Møller AF, Madsen JGS et al. **Interpretable joint clustering of single-cell transcriptomes (2023)** ResearchSquare_  <br/>
