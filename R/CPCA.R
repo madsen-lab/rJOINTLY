@@ -43,8 +43,10 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   if (selection.method == "deviance") {
     features <- as.data.frame(scry::devianceFeatureSelection(dataset.list[[1]]))
     colnames(features)[1] <- "Dataset1"
+    features[ features[,1] == 0,1] <- NaN
     for (ds in 2:length(dataset.list)) {
       feats <- scry::devianceFeatureSelection(dataset.list[[ds]])
+      feats[ feats == 0] <- NaN
       features <- merge(as.data.frame(features), as.data.frame(feats), 
                         by = 0)
       colnames(features)[ncol(features)] <- paste("Dataset", 
