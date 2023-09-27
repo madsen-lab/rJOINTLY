@@ -41,7 +41,9 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
   if (verbose) { message("Decomposing samples using (consensus) PCA.")}
   if (verbose) { message("\tPerforming feature selection.")}
   if (selection.method == "deviance") {
-    features <- as.data.frame(scry::devianceFeatureSelection(dataset.list[[1]]))
+    features <- scry::devianceFeatureSelection(dataset.list[[1]])
+    features[features == 0] <- NaN
+    features <- as.data.frame(features)
     colnames(features)[1] <- "Dataset1"
     features[ features[,1] == 0,1] <- NaN
     for (ds in 2:length(dataset.list)) {
