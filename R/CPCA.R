@@ -45,7 +45,6 @@ cpca = function (dataset.list, weight_by_var = TRUE, pca.type = "cpca", nfeat = 
     features[features == 0] <- NaN
     features <- as.data.frame(features)
     colnames(features)[1] <- "Dataset1"
-    features[ features[,1] == 0,1] <- NaN
     for (ds in 2:length(dataset.list)) {
       feats <- scry::devianceFeatureSelection(dataset.list[[ds]])
       feats[ feats == 0] <- NaN
