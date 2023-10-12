@@ -13,7 +13,7 @@ JOINTLYsolve(
   norm.scale = TRUE,
   norm.minmax = FALSE,
   norm.center = FALSE,
-  k = 15,
+  k = 20,
   m = 2,
   iter.max = 200,
   alpha = 1,
@@ -45,7 +45,7 @@ JOINTLYsolve(
 
 \item{norm.center}{Boolean (TRUE or FALSE) indicating whether or not to center the normalized counts [default = FALSE]}
 
-\item{k}{The number of factors to calculate [default = 15]}
+\item{k}{The number of factors to calculate [default = 20]}
 
 \item{m}{The fuzzy parameter of for cluster initialization [default = 2]}
 

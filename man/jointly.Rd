@@ -7,7 +7,7 @@
 jointly(
   data,
   batch.var = NULL,
-  factors = 15,
+  factors = 20,
   nfeat = 1000,
   modules = TRUE,
   init = "clustering",
@@ -34,7 +34,7 @@ jointly(
 
 \item{batch.var}{A variable to split Seurat or SingleCellExperiment objects into a list [default = NULL]}
 
-\item{factors}{The number of factors to calculate [default = 15]}
+\item{factors}{The number of factors to calculate [default = 20]}
 
 \item{nfeat}{The number of features to select [default = 1000]}
 

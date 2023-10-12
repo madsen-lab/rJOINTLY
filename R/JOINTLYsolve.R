@@ -10,7 +10,7 @@
 #' @param norm.scale Boolean (TRUE or FALSE) indicating whether or not to scale the normalized counts [default = TRUE]
 #' @param norm.minmax Boolean (TRUE or FALSE) indicating whether or not to MinMax scale the normalized counts [default = FALSE]
 #' @param norm.center Boolean (TRUE or FALSE) indicating whether or not to center the normalized counts [default = FALSE]
-#' @param k The number of factors to calculate [default = 15]
+#' @param k The number of factors to calculate [default = 20]
 #' @param m The fuzzy parameter of for cluster initialization [default = 2]
 #' @param iter.max The maximum number of iterations to perform [default = 200]
 #' @param alpha Alpha parameter of the loss function [default = 1]
@@ -30,7 +30,7 @@
 #' @import SharedObject
 #' @export
 
-JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 15, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = FALSE, ncpu = 1, save_all = FALSE, bpparam = SerialParam(), verbose = TRUE) {
+JOINTLYsolve <- function(kernel.list, snn.list, rare.list, cpca.result, init = "clustering", norm.scale = TRUE, norm.minmax = FALSE, norm.center = FALSE, k = 20, m = 2, iter.max = 200, alpha = 1, mu = 20, lambda = 1, beta = 5, progressbar = TRUE, share.objects = FALSE, ncpu = 1, save_all = FALSE, bpparam = SerialParam(), verbose = TRUE) {
   ## Convert to dense matrices
   if (verbose) { message("Solving matrices.")}
   norm.list <- list()
