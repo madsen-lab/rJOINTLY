@@ -67,6 +67,7 @@ prepareData = function(dataset.list, k.decay = 5, k.rare = 20, k.snn = 30, alpha
     
     # Compute SNN
     snn.list[[ds]] <- Seurat::FindNeighbors(data, verbose = FALSE, compute.SNN = TRUE, k.param = k.snn, prune.SNN = prune)$snn
+    if (class(snn.list[[ds]])[1] == "Graph") { snn.list[[ds]] <- Matrix::sparseMatrix(i = snn.list[[ds]]@i, p = snn.list[[ds]]@p, x = snn.list[[ds]]@x, dims = snn.list[[ds]]@Dim, dimnames = snn.list[[ds]]@Dimnames, index1 = FALSE) }
     names(snn.list)[ds] <- names(dataset.list)[ds]
   }
   
